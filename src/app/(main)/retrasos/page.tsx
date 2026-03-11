@@ -1,0 +1,152 @@
+import { createClient } from '@/lib/supabase/server'
+import { Clock, AlertTriangle, CheckCircle, Calendar, Users } from 'lucide-react'
+import RetrasosCharts from '@/components/retrasos/RetrasosCharts'
+import RecentRetrasosTable from '@/components/retrasos/RecentRetrasosTable'
+
+export default async function RetrasosDashboardPage() {
+    const supabase = await createClient()
+    const today = new Date().toISOString().split('T')[0]
+
+    // 1. Estadísticas básicas
+    const { count: totalHoy } = await supabase
+        .from('convi_retrasos')
+        .select('*', { count: 'exact', head: true })
+        .gte('fecha', `${today}T00:00:00.000Z`)
+        .lt('fecha', `${today}T23:59:59.999Z`)
+
+    const { count: totalJustificados } = await supabase
+        .from('convi_retrasos')
+        .select('*', { count: 'exact', head: true })
+        .eq('justificante', true)
+
+    const { count: totalSancionables } = await supabase
+        .from('convi_retrasos')
+        .select('*', { count: 'exact', head: true })
+        .eq('sancionable', true)
+
+    // 2. Datos para el gráfico de retrasos por curso
+    const { data: retrasosPorCursoRaw } = await supabase
+        .from('convi_retrasos')
+        .select(`
+            id,
+            alumnos (
+                unidad
+            )
+        `)
+
+    const counts: Record<string, number> = {}
+    retrasosPorCursoRaw?.forEach((r: any) => {
+        // Manejamos si alumnos es objeto o array
+        const alumno = Array.isArray(r.alumnos) ? r.alumnos[0] : r.alumnos
+        const curso = alumno?.unidad || 'Sin Curso'
+        const cursoSimplificado = curso.split(' ').slice(0, 2).join(' ')
+        counts[cursoSimplificado] = (counts[cursoSimplificado] || 0) + 1
+    })
+
+    const chartData = Object.entries(counts)
+        .map(([name, value]) => ({ name, value }))
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 5)
+
+    // 3. Últimos 10 retrasos para la tabla
+    const { data: recentRetrasos } = await supabase
+        .from('convi_retrasos')
+        .select(`
+            id,
+            fecha,
+            justificante,
+            sancionable,
+            observaciones,
+            alumnos (
+                alumno,
+                unidad
+            )
+        `)
+        .order('created_at', { ascending: false })
+        .limit(10)
+
+    return (
+        <div className="space-y-8 pb-12">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Dashboard de Retrasos</h1>
+                    <p className="text-gray-500 mt-1">Análisis y seguimiento de la puntualidad del alumnado.</p>
+                </div>
+                <div className="flex gap-3">
+                    <a
+                        href="/retrasos/crear"
+                        className="inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-2xl font-semibold hover:bg-blue-700 transition-all shadow-lg shadow-blue-100"
+                    >
+                        <Clock className="w-5 h-5" />
+                        Nuevo Registro
+                    </a>
+                </div>
+            </div>
+
+            {/* Tarjetas de Resumen */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                    <div className="flex items-center gap-4">
+                        <div className="bg-blue-50 p-3 rounded-2xl text-blue-600">
+                            <Calendar className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-medium text-gray-500">Hoy</p>
+                            <p className="text-2xl font-bold">{totalHoy || 0}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                    <div className="flex items-center gap-4">
+                        <div className="bg-green-50 p-3 rounded-2xl text-green-600">
+                            <CheckCircle className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-medium text-gray-500">Justificados</p>
+                            <p className="text-2xl font-bold">{totalJustificados || 0}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                    <div className="flex items-center gap-4">
+                        <div className="bg-orange-50 p-3 rounded-2xl text-orange-600">
+                            <AlertTriangle className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-medium text-gray-500">Sancionables</p>
+                            <p className="text-2xl font-bold">{totalSancionables || 0}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                    <div className="flex items-center gap-4">
+                        <div className="bg-purple-50 p-3 rounded-2xl text-purple-600">
+                            <Users className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-medium text-gray-500">Total Histórico</p>
+                            <p className="text-2xl font-bold">{(retrasosPorCursoRaw?.length || 0)}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Distribución por Gráfico */}
+                <div className="lg:col-span-1 bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+                    <h2 className="text-lg font-bold text-gray-900 mb-6 font-display">Retrasos por Nivel</h2>
+                    <RetrasosCharts data={chartData} />
+                </div>
+
+                {/* Tabla de Recientes */}
+                <div className="lg:col-span-2 bg-white p-8 rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                    <h2 className="text-lg font-bold text-gray-900 mb-6">Registros Recientes</h2>
+                    <RecentRetrasosTable data={recentRetrasos || []} />
+                </div>
+            </div>
+        </div>
+    )
+}
