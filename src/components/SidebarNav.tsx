@@ -13,18 +13,6 @@ export default function SidebarNav() {
             label: 'Inicio',
             icon: LayoutDashboard,
             active: pathname === '/dashboard'
-        },
-        {
-            href: '/partes/crear',
-            label: 'Nuevo Parte',
-            icon: FileText,
-            active: pathname === '/partes/crear'
-        },
-        {
-            href: '/retrasos/crear',
-            label: 'Registrar Retraso',
-            icon: Clock,
-            active: pathname === '/retrasos/crear'
         }
     ]
 

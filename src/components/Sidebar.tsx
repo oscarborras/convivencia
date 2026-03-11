@@ -26,22 +26,16 @@ export default function Sidebar({ userEmail }: SidebarProps) {
             active: pathname === '/dashboard'
         },
         {
-            href: '/partes/crear',
-            label: 'Nuevo Parte',
-            icon: FileText,
-            active: pathname === '/partes/crear'
-        },
-        {
             href: '/retrasos',
             label: 'Dashboard Retrasos',
-            icon: LayoutDashboard,
+            icon: Clock,
             active: pathname === '/retrasos'
         },
         {
-            href: '/retrasos/crear',
-            label: 'Registrar Retraso',
-            icon: Clock,
-            active: pathname === '/retrasos/crear'
+            href: '/partes',
+            label: 'Dashboard Partes',
+            icon: FileText,
+            active: pathname === '/partes'
         },
         {
             href: '/importar',

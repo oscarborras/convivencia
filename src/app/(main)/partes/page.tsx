@@ -1,32 +1,33 @@
 import { createClient } from '@/lib/supabase/server'
-import { Clock, AlertTriangle, CheckCircle, Calendar, Users } from 'lucide-react'
+import { FileText, AlertTriangle, ShieldAlert, Calendar, Users, AlertOctagon } from 'lucide-react'
 import RetrasosCharts from '@/components/retrasos/RetrasosCharts'
-import RecentRetrasosTable from '@/components/retrasos/RecentRetrasosTable'
+import RecentPartesTable from '@/components/retrasos/RecentPartesTable'
 
-export default async function RetrasosDashboardPage() {
+export default async function PartesDashboardPage() {
     const supabase = await createClient()
     const today = new Date().toISOString().split('T')[0]
 
     // 1. Estadísticas básicas
     const { count: totalHoy } = await supabase
-        .from('convi_retrasos')
+        .from('convi_partes')
         .select('*', { count: 'exact', head: true })
-        .gte('fecha', `${today}T00:00:00.000Z`)
-        .lt('fecha', `${today}T23:59:59.999Z`)
+        .eq('fecha', today)
 
-    const { count: totalJustificados } = await supabase
-        .from('convi_retrasos')
+    // Partes Leves (con conductas contrarias seleccionadas)
+    const { count: totalPartesLeves } = await supabase
+        .from('convi_partes')
         .select('*', { count: 'exact', head: true })
-        .eq('justificante', true)
+        .neq('conductas_contrarias', '{}')
 
-    const { count: totalSancionables } = await supabase
-        .from('convi_retrasos')
+    // Partes Graves (con conductas graves seleccionadas)
+    const { count: totalPartesGraves } = await supabase
+        .from('convi_partes')
         .select('*', { count: 'exact', head: true })
-        .eq('sancionable', true)
+        .neq('conductas_graves', '{}')
 
-    // 2. Datos para el gráfico de retrasos por curso
-    const { data: retrasosPorCursoRaw } = await supabase
-        .from('convi_retrasos')
+    // 2. Datos para el gráfico de partes por curso
+    const { data: partesPorCursoRaw } = await supabase
+        .from('convi_partes')
         .select(`
             id,
             alumnos (
@@ -35,7 +36,7 @@ export default async function RetrasosDashboardPage() {
         `)
 
     const counts: Record<string, number> = {}
-    retrasosPorCursoRaw?.forEach((r: any) => {
+    partesPorCursoRaw?.forEach((r: any) => {
         // Manejamos si alumnos es objeto o array
         const alumno = Array.isArray(r.alumnos) ? r.alumnos[0] : r.alumnos
         const curso = alumno?.unidad || 'Sin Curso'
@@ -48,14 +49,16 @@ export default async function RetrasosDashboardPage() {
         .sort((a, b) => b.value - a.value)
         .slice(0, 5)
 
-    // 3. Últimos 10 retrasos para la tabla
-    const { data: recentRetrasos } = await supabase
-        .from('convi_retrasos')
+    // 3. Últimos 10 partes para la tabla
+    const { data: recentPartes } = await supabase
+        .from('convi_partes')
         .select(`
             id,
             fecha,
-            justificante,
-            sancionable,
+            hora,
+            conductas_contrarias,
+            conductas_graves,
+            genera_expulsion,
             observaciones,
             alumnos (
                 alumno,
@@ -69,16 +72,16 @@ export default async function RetrasosDashboardPage() {
         <div className="space-y-8 pb-12">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Dashboard de Retrasos</h1>
-                    <p className="text-gray-500 mt-1">Análisis y seguimiento de la puntualidad del alumnado.</p>
+                    <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Dashboard de Partes</h1>
+                    <p className="text-gray-500 mt-1">Análisis y seguimiento de incidencias disciplinarias.</p>
                 </div>
                 <div className="flex gap-3">
                     <a
-                        href="/retrasos/crear"
-                        className="inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-2xl font-semibold hover:bg-blue-700 transition-all shadow-lg shadow-blue-100"
+                        href="/partes/crear"
+                        className="inline-flex items-center gap-2 bg-red-600 text-white px-5 py-2.5 rounded-2xl font-semibold hover:bg-red-700 transition-all shadow-lg shadow-red-100"
                     >
-                        <Clock className="w-5 h-5" />
-                        Nuevo Registro
+                        <ShieldAlert className="w-5 h-5" />
+                        Nuevo Parte
                     </a>
                 </div>
             </div>
@@ -99,24 +102,24 @@ export default async function RetrasosDashboardPage() {
 
                 <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
                     <div className="flex items-center gap-4">
-                        <div className="bg-green-50 p-3 rounded-2xl text-green-600">
-                            <CheckCircle className="w-6 h-6" />
+                        <div className="bg-orange-50 p-3 rounded-2xl text-orange-600">
+                            <AlertTriangle className="w-6 h-6" />
                         </div>
                         <div>
-                            <p className="text-sm font-medium text-gray-500">Justificados</p>
-                            <p className="text-2xl font-bold">{totalJustificados || 0}</p>
+                            <p className="text-sm font-medium text-gray-500">Partes Leves</p>
+                            <p className="text-2xl font-bold">{totalPartesLeves || 0}</p>
                         </div>
                     </div>
                 </div>
 
                 <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
                     <div className="flex items-center gap-4">
-                        <div className="bg-orange-50 p-3 rounded-2xl text-orange-600">
-                            <AlertTriangle className="w-6 h-6" />
+                        <div className="bg-red-50 p-3 rounded-2xl text-red-600">
+                            <AlertOctagon className="w-6 h-6" />
                         </div>
                         <div>
-                            <p className="text-sm font-medium text-gray-500">Sancionables</p>
-                            <p className="text-2xl font-bold">{totalSancionables || 0}</p>
+                            <p className="text-sm font-medium text-gray-500">Partes Graves</p>
+                            <p className="text-2xl font-bold">{totalPartesGraves || 0}</p>
                         </div>
                     </div>
                 </div>
@@ -128,23 +131,23 @@ export default async function RetrasosDashboardPage() {
                         </div>
                         <div>
                             <p className="text-sm font-medium text-gray-500">Total Histórico</p>
-                            <p className="text-2xl font-bold">{(retrasosPorCursoRaw?.length || 0)}</p>
+                            <p className="text-2xl font-bold">{(partesPorCursoRaw?.length || 0)}</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 {/* Distribución por Gráfico */}
-                <div className="lg:col-span-4 bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-                    <h2 className="text-lg font-bold text-gray-900 mb-6 font-display">Retrasos por Nivel</h2>
+                <div className="lg:col-span-3 bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+                    <h2 className="text-lg font-bold text-gray-900 mb-6 font-display">Partes por Nivel</h2>
                     <RetrasosCharts data={chartData} />
                 </div>
 
                 {/* Tabla de Recientes */}
-                <div className="lg:col-span-8 bg-white p-8 rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-                    <h2 className="text-lg font-bold text-gray-900 mb-6">Registros Recientes</h2>
-                    <RecentRetrasosTable data={recentRetrasos || []} />
+                <div className="lg:col-span-9 bg-white p-8 rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                    <h2 className="text-lg font-bold text-gray-900 mb-6">Partes Recientes</h2>
+                    <RecentPartesTable data={recentPartes || []} />
                 </div>
             </div>
         </div>
