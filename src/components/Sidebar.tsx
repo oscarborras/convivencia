@@ -1,6 +1,6 @@
 'use client'
 
-import { Shield, LayoutDashboard, FileText, Menu, LogOut, Clock, X, Upload, GraduationCap } from 'lucide-react'
+import { Shield, LayoutDashboard, FileText, Menu, LogOut, Clock, X, Upload, GraduationCap, Settings, History } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
@@ -32,6 +32,12 @@ export default function Sidebar({ userEmail }: SidebarProps) {
             active: pathname === '/retrasos'
         },
         {
+            href: '/retrasos/historial',
+            label: 'Historial Retrasos',
+            icon: History,
+            active: pathname === '/retrasos/historial'
+        },
+        {
             href: '/partes',
             label: 'Dashboard Partes',
             icon: FileText,
@@ -42,8 +48,15 @@ export default function Sidebar({ userEmail }: SidebarProps) {
             label: 'Importar',
             icon: Upload,
             active: pathname === '/importar'
+        },
+        {
+            href: '/ajustes',
+            label: 'Ajustes',
+            icon: Settings,
+            active: pathname === '/ajustes'
         }
     ]
+
 
 
     return (

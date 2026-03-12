@@ -73,7 +73,12 @@ export async function createParte(formData: FormData) {
         .eq('id', parteData.profesor_id)
         .single();
 
-    const emailConvivencia = process.env.EMAIL_CONVIVENCIA;
+    const { data: configData } = await supabase
+        .from('convi_config')
+        .select('email_convivencia')
+        .single();
+
+    const emailConvivencia = configData?.email_convivencia;
     const destinatarios: string[] = [];
     if (emailConvivencia) destinatarios.push(emailConvivencia);
     if (alumnoData?.tutor1_email) destinatarios.push(alumnoData.tutor1_email);

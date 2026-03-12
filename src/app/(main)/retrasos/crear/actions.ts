@@ -54,7 +54,12 @@ export async function createRetraso(formData: FormData) {
         emailTutorCurso = cursoData?.email_tutor;
     }
 
-    const emailConvivencia = process.env.EMAIL_CONVIVENCIA;
+    const { data: configData } = await supabase
+        .from('convi_config')
+        .select('email_convivencia')
+        .single();
+
+    const emailConvivencia = configData?.email_convivencia;
 
     const destinatarios: string[] = [];
     if (emailConvivencia) destinatarios.push(emailConvivencia);

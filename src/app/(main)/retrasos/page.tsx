@@ -7,24 +7,63 @@ export default async function RetrasosDashboardPage() {
     const supabase = await createClient()
     const today = new Date().toISOString().split('T')[0]
 
-    // 1. Estadísticas básicas
+    // 1. Obtener configuración de trimestres
+    const { data: config } = await supabase
+        .from('convi_config')
+        .select('*')
+        .single()
+
+    // 2. Determinar fechas del trimestre actual
+    const nowLocal = new Date().toISOString().split('T')[0]
+    let startTrimestre = '2000-01-01'
+    let endTrimestre = '2100-12-31'
+    let nombreTrimestre = 'Curso'
+
+    if (config) {
+        if (nowLocal >= config.trimestre1_inicio && nowLocal <= config.trimestre1_fin) {
+            startTrimestre = config.trimestre1_inicio
+            endTrimestre = config.trimestre1_fin
+            nombreTrimestre = '1º Trimestre'
+        } else if (nowLocal >= config.trimestre2_inicio && nowLocal <= config.trimestre2_fin) {
+            startTrimestre = config.trimestre2_inicio
+            endTrimestre = config.trimestre2_fin
+            nombreTrimestre = '2º Trimestre'
+        } else if (nowLocal >= config.trimestre3_inicio && nowLocal <= config.trimestre3_fin) {
+            startTrimestre = config.trimestre3_inicio
+            endTrimestre = config.trimestre3_fin
+            nombreTrimestre = '3º Trimestre'
+        }
+    }
+
+    // 3. Estadísticas dinámicas
     const { count: totalHoy } = await supabase
         .from('convi_retrasos')
         .select('*', { count: 'exact', head: true })
         .gte('fecha', `${today}T00:00:00.000Z`)
         .lt('fecha', `${today}T23:59:59.999Z`)
 
-    const { count: totalJustificados } = await supabase
+    const { count: totalTrimestre } = await supabase
         .from('convi_retrasos')
         .select('*', { count: 'exact', head: true })
-        .eq('justificante', true)
+        .gte('fecha', startTrimestre)
+        .lte('fecha', endTrimestre)
+
+    const { data: pendientesData } = await supabase
+        .from('convi_retrasos')
+        .select('alumno_id')
+        .eq('sancionable', true)
+        .is('fecha_sancion', null)
+        .gte('fecha', startTrimestre)
+        .lte('fecha', endTrimestre)
+
+    const countAlumnosPendientes = new Set(pendientesData?.map(r => r.alumno_id)).size
 
     const { count: totalSancionables } = await supabase
         .from('convi_retrasos')
         .select('*', { count: 'exact', head: true })
         .eq('sancionable', true)
 
-    // 2. Datos para el gráfico de retrasos por curso
+    // 4. Datos para el gráfico de retrasos por curso
     const { data: retrasosPorCursoRaw } = await supabase
         .from('convi_retrasos')
         .select(`
@@ -36,7 +75,6 @@ export default async function RetrasosDashboardPage() {
 
     const counts: Record<string, number> = {}
     retrasosPorCursoRaw?.forEach((r: any) => {
-        // Manejamos si alumnos es objeto o array
         const alumno = Array.isArray(r.alumnos) ? r.alumnos[0] : r.alumnos
         const curso = alumno?.unidad || 'Sin Curso'
         const cursoSimplificado = curso.split(' ').slice(0, 2).join(' ')
@@ -48,7 +86,7 @@ export default async function RetrasosDashboardPage() {
         .sort((a, b) => b.value - a.value)
         .slice(0, 5)
 
-    // 3. Últimos 10 retrasos para la tabla
+    // 5. Últimos 10 retrasos para la tabla
     const { data: recentRetrasos } = await supabase
         .from('convi_retrasos')
         .select(`
@@ -85,54 +123,48 @@ export default async function RetrasosDashboardPage() {
 
             {/* Tarjetas de Resumen */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                    <div className="flex items-center gap-4">
-                        <div className="bg-blue-50 p-3 rounded-2xl text-blue-600">
-                            <Calendar className="w-6 h-6" />
-                        </div>
-                        <div>
-                            <p className="text-sm font-medium text-gray-500">Hoy</p>
-                            <p className="text-2xl font-bold">{totalHoy || 0}</p>
-                        </div>
+                <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-md transition-shadow">
+                    <div className="bg-blue-50 p-3.5 rounded-2xl text-blue-600">
+                        <Calendar className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-0.5">Hoy</p>
+                        <p className="text-2xl font-black text-gray-900 leading-none">{totalHoy || 0}</p>
                     </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                    <div className="flex items-center gap-4">
-                        <div className="bg-green-50 p-3 rounded-2xl text-green-600">
-                            <CheckCircle className="w-6 h-6" />
-                        </div>
-                        <div>
-                            <p className="text-sm font-medium text-gray-500">Justificados</p>
-                            <p className="text-2xl font-bold">{totalJustificados || 0}</p>
-                        </div>
+                <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-md transition-shadow">
+                    <div className="bg-indigo-50 p-3.5 rounded-2xl text-indigo-600">
+                        <Clock className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-0.5">{nombreTrimestre}</p>
+                        <p className="text-2xl font-black text-gray-900 leading-none">{totalTrimestre || 0}</p>
                     </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                    <div className="flex items-center gap-4">
-                        <div className="bg-orange-50 p-3 rounded-2xl text-orange-600">
-                            <AlertTriangle className="w-6 h-6" />
-                        </div>
-                        <div>
-                            <p className="text-sm font-medium text-gray-500">Sancionables</p>
-                            <p className="text-2xl font-bold">{totalSancionables || 0}</p>
-                        </div>
+                <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-md transition-shadow">
+                    <div className="bg-amber-50 p-3.5 rounded-2xl text-amber-600">
+                        <Users className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-0.5">Pendientes Sanción</p>
+                        <p className="text-[10px] text-gray-400 font-bold mt-1 uppercase">Alumnos en {nombreTrimestre}</p>
+                        <p className="text-2xl font-black text-gray-900 leading-none">{countAlumnosPendientes || 0}</p>
                     </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                    <div className="flex items-center gap-4">
-                        <div className="bg-purple-50 p-3 rounded-2xl text-purple-600">
-                            <Users className="w-6 h-6" />
-                        </div>
-                        <div>
-                            <p className="text-sm font-medium text-gray-500">Total Histórico</p>
-                            <p className="text-2xl font-bold">{(retrasosPorCursoRaw?.length || 0)}</p>
-                        </div>
+                <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-md transition-shadow">
+                    <div className="bg-rose-50 p-3.5 rounded-2xl text-rose-600">
+                        <AlertTriangle className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-0.5">Total Sancionables</p>
+                        <p className="text-2xl font-black text-gray-900 leading-none">{totalSancionables || 0}</p>
                     </div>
                 </div>
             </div>
+
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Distribución por Gráfico */}
