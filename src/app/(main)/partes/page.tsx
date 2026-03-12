@@ -1,7 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
-import { FileText, AlertTriangle, ShieldAlert, Calendar, Users, AlertOctagon, History as HistoryIcon } from 'lucide-react'
+import { FileText, AlertTriangle, ShieldAlert, Calendar, Users, AlertOctagon, History as HistoryIcon, PieChart as PieChartIcon } from 'lucide-react'
 import RetrasosCharts from '@/components/retrasos/RetrasosCharts'
 import RecentPartesTable from '@/components/retrasos/RecentPartesTable'
+import PartesGravityChart from '@/components/dashboard/PartesGravityChart'
 
 export default async function PartesDashboardPage() {
     const supabase = await createClient()
@@ -66,6 +67,11 @@ export default async function PartesDashboardPage() {
         `)
         .order('created_at', { ascending: false })
         .limit(10)
+
+    const gravityChartData = [
+        { name: 'Leves', value: totalPartesLeves || 0, color: '#10b981' },
+        { name: 'Graves', value: totalPartesGraves || 0, color: '#f59e0b' }
+    ]
 
     return (
         <div className="space-y-8 pb-12">
@@ -144,15 +150,36 @@ export default async function PartesDashboardPage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                {/* Distribución por Gráfico */}
-                <div className="lg:col-span-3 bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                    <h2 className="text-lg font-bold text-gray-900 mb-6 font-display">Partes por Unidad</h2>
-                    <RetrasosCharts data={chartData} yAxisWidth={70} />
+                {/* Distribución por Unidad */}
+                <div className="lg:col-span-8 bg-white p-8 rounded-3xl shadow-sm border border-gray-100 h-full">
+                    <h2 className="text-xl font-bold text-gray-900 mb-8 font-display">Partes por Unidad</h2>
+                    <div className="h-[400px]">
+                        <RetrasosCharts data={chartData} yAxisWidth={120} />
+                    </div>
                 </div>
 
+                {/* Distribución por Gravedad */}
+                <div className="lg:col-span-4 bg-white p-8 rounded-3xl shadow-sm border border-gray-100 flex flex-col h-full">
+                    <div className="flex items-center justify-between mb-8">
+                        <div>
+                            <h2 className="text-xl font-bold text-gray-900 tracking-tight">Tipos de Partes</h2>
+                            <p className="text-sm text-gray-500 font-medium">Distribución por Gravedad</p>
+                        </div>
+                        <div className="bg-emerald-50 p-2.5 rounded-2xl text-emerald-600">
+                            <PieChartIcon className="w-5 h-5" />
+                        </div>
+                    </div>
+                    <div className="flex-1 min-h-[400px]">
+                        <PartesGravityChart data={gravityChartData} />
+                    </div>
+                </div>
+            </div>
+
+            <div className="space-y-6">
+
                 {/* Tabla de Recientes */}
-                <div className="lg:col-span-9 bg-white p-8 rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-                    <h2 className="text-lg font-bold text-gray-900 mb-6">Partes Recientes</h2>
+                <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                    <h2 className="text-xl font-bold text-gray-900 mb-8">Partes Recientes</h2>
                     <RecentPartesTable data={recentPartes || []} />
                 </div>
             </div>
