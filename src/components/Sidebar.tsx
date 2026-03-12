@@ -18,52 +18,70 @@ export default function Sidebar({ userEmail }: SidebarProps) {
         setIsOpen(false)
     }, [pathname])
 
-    const navItems = [
+    const navigation = [
         {
-            href: '/dashboard',
-            label: 'Inicio',
-            icon: LayoutDashboard,
-            active: pathname === '/dashboard'
+            title: null,
+            items: [
+                {
+                    href: '/dashboard',
+                    label: 'Inicio',
+                    icon: LayoutDashboard,
+                    active: pathname === '/dashboard'
+                }
+            ]
         },
         {
-            href: '/retrasos',
-            label: 'Dashboard Retrasos',
-            icon: Clock,
-            active: pathname === '/retrasos'
+            title: 'Gestión de Retrasos',
+            items: [
+                {
+                    href: '/retrasos',
+                    label: 'Dashboard',
+                    icon: Clock,
+                    active: pathname === '/retrasos'
+                },
+                {
+                    href: '/retrasos/historial',
+                    label: 'Historial',
+                    icon: History,
+                    active: pathname === '/retrasos/historial'
+                }
+            ]
         },
         {
-            href: '/retrasos/historial',
-            label: 'Historial Retrasos',
-            icon: History,
-            active: pathname === '/retrasos/historial'
+            title: 'Gestión de Partes',
+            items: [
+                {
+                    href: '/partes',
+                    label: 'Dashboard',
+                    icon: FileText,
+                    active: pathname === '/partes'
+                },
+                {
+                    href: '/partes/historial',
+                    label: 'Historial',
+                    icon: History,
+                    active: pathname === '/partes/historial'
+                }
+            ]
         },
         {
-            href: '/partes',
-            label: 'Dashboard Partes',
-            icon: FileText,
-            active: pathname === '/partes'
-        },
-        {
-            href: '/partes/historial',
-            label: 'Historial Partes',
-            icon: History,
-            active: pathname === '/partes/historial'
-        },
-        {
-            href: '/importar',
-            label: 'Importar',
-            icon: Upload,
-            active: pathname === '/importar'
-        },
-        {
-            href: '/ajustes',
-            label: 'Ajustes',
-            icon: Settings,
-            active: pathname === '/ajustes'
+            title: 'Administración',
+            items: [
+                {
+                    href: '/importar',
+                    label: 'Importar Datos',
+                    icon: Upload,
+                    active: pathname === '/importar'
+                },
+                {
+                    href: '/ajustes',
+                    label: 'Configuración',
+                    icon: Settings,
+                    active: pathname === '/ajustes'
+                }
+            ]
         }
     ]
-
-
 
     return (
         <>
@@ -100,7 +118,7 @@ export default function Sidebar({ userEmail }: SidebarProps) {
 
             {/* Sidebar Desktop & Mobile */}
             <aside className={`
-                fixed inset-y-0 left-0 bg-white border-r border-gray-200 shadow-xl z-50 w-64 transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:flex md:flex-col print:hidden
+                fixed inset-y-0 left-0 bg-white border-r border-gray-200 shadow-xl z-50 w-64 transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:flex md:flex-col print:hidden h-screen
                 ${isOpen ? 'translate-x-0' : '-translate-x-full'}
             `}>
                 <div className="p-6 flex items-center gap-4">
@@ -117,29 +135,41 @@ export default function Sidebar({ userEmail }: SidebarProps) {
                     </div>
                 </div>
 
-                <nav className="flex-1 px-4 space-y-2 mt-4">
-                    {navItems.map((item) => (
-                        <Link
-                            key={item.href}
-                            href={item.href}
-                            className={`flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all font-medium border ${item.active
-                                ? 'text-blue-700 bg-blue-50 border-blue-100 shadow-sm'
-                                : 'text-gray-600 border-transparent hover:bg-gray-50 hover:text-gray-900'
-                                }`}
-                        >
-                            <item.icon className={`w-5 h-5 ${item.active ? 'text-blue-600' : ''}`} />
-                            {item.label}
-                        </Link>
+                <nav className="flex-1 px-4 space-y-6 mt-4 overflow-y-auto pb-6">
+                    {navigation.map((group, groupIdx) => (
+                        <div key={groupIdx} className="space-y-2">
+                            {group.title && (
+                                <h3 className="px-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">
+                                    {group.title}
+                                </h3>
+                            )}
+                            <div className="space-y-1">
+                                {group.items.map((item) => (
+                                    <Link
+                                        key={item.href}
+                                        href={item.href}
+                                        className={`flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all font-bold text-sm border ${item.active
+                                            ? 'text-blue-700 bg-blue-50 border-blue-100 shadow-sm'
+                                            : 'text-gray-500 border-transparent hover:bg-gray-50 hover:text-gray-900 hover:translate-x-1'
+                                            }`}
+                                    >
+                                        <item.icon className={`w-5 h-5 ${item.active ? 'text-blue-600' : 'text-gray-400 opacity-70 group-hover:opacity-100'}`} />
+                                        {item.label}
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
                     ))}
                 </nav>
 
-                <div className="p-4 border-t border-gray-100">
-                    <div className="flex items-center gap-3 px-3 py-2 text-sm text-gray-500 mb-2 truncate">
+                <div className="p-4 border-t border-gray-100 bg-gray-50/50">
+                    <div className="flex items-center gap-3 px-3 py-2 text-xs font-bold text-gray-400 mb-2 truncate bg-white rounded-xl border border-gray-100 shadow-sm">
+                        <User className="w-3.5 h-3.5 text-blue-500" />
                         {userEmail}
                     </div>
                     <form action="/auth/signout" method="post">
-                        <button className="flex w-full items-center justify-center gap-2 px-3 py-2 text-red-600 hover:bg-red-50 rounded-2xl transition-colors font-medium border border-transparent hover:border-red-100">
-                            <LogOut className="w-5 h-5 mt-0.5" />
+                        <button className="flex w-full items-center justify-center gap-2 px-3 py-2 text-red-600 hover:bg-red-50 rounded-2xl transition-all font-black text-xs border border-transparent hover:border-red-100 uppercase tracking-widest active:scale-95">
+                            <LogOut className="w-4 h-4 mt-0.5" />
                             Cerrar sesión
                         </button>
                     </form>
@@ -147,4 +177,24 @@ export default function Sidebar({ userEmail }: SidebarProps) {
             </aside>
         </>
     )
+}
+
+function User(props: any) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </svg>
+  )
 }

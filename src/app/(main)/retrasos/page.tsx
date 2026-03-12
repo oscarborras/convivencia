@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { Clock, AlertTriangle, CheckCircle, Calendar, Users } from 'lucide-react'
+import { Clock, AlertTriangle, CheckCircle, Calendar, Users, History as HistoryIcon } from 'lucide-react'
 import RetrasosCharts from '@/components/retrasos/RetrasosCharts'
 import RecentRetrasosTable from '@/components/retrasos/RecentRetrasosTable'
 
@@ -110,6 +110,13 @@ export default async function RetrasosDashboardPage() {
                     <p className="text-gray-500 mt-1">Análisis y seguimiento de la puntualidad del alumnado.</p>
                 </div>
                 <div className="flex gap-3">
+                    <a
+                        href="/retrasos/historial"
+                        className="inline-flex items-center gap-2 bg-white text-gray-700 px-5 py-2.5 rounded-2xl font-semibold border border-gray-200 hover:border-gray-900 transition-all shadow-sm"
+                    >
+                        <HistoryIcon className="w-5 h-5" />
+                        Ver Historial
+                    </a>
                     <a
                         href="/retrasos/crear"
                         className="inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-2xl font-semibold hover:bg-blue-700 transition-all shadow-lg shadow-blue-100"
