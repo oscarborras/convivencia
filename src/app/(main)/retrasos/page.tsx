@@ -76,15 +76,14 @@ export default async function RetrasosDashboardPage() {
     const counts: Record<string, number> = {}
     retrasosPorCursoRaw?.forEach((r: any) => {
         const alumno = Array.isArray(r.alumnos) ? r.alumnos[0] : r.alumnos
-        const curso = alumno?.unidad || 'Sin Curso'
-        const cursoSimplificado = curso.split(' ').slice(0, 2).join(' ')
-        counts[cursoSimplificado] = (counts[cursoSimplificado] || 0) + 1
+        const unidad = alumno?.unidad || 'Sin Unidad'
+        counts[unidad] = (counts[unidad] || 0) + 1
     })
 
     const chartData = Object.entries(counts)
         .map(([name, value]) => ({ name, value }))
         .sort((a, b) => b.value - a.value)
-        .slice(0, 5)
+        .slice(0, 8)
 
     // 5. Últimos 10 retrasos para la tabla
     const { data: recentRetrasos } = await supabase
@@ -168,13 +167,13 @@ export default async function RetrasosDashboardPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Distribución por Gráfico */}
-                <div className="lg:col-span-4 bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-                    <h2 className="text-lg font-bold text-gray-900 mb-6 font-display">Retrasos por Nivel</h2>
+                <div className="lg:col-span-5 bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+                    <h2 className="text-lg font-bold text-gray-900 mb-6 font-display">Retrasos por Unidad</h2>
                     <RetrasosCharts data={chartData} />
                 </div>
 
                 {/* Tabla de Recientes */}
-                <div className="lg:col-span-8 bg-white p-8 rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="lg:col-span-7 bg-white p-8 rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
                     <h2 className="text-lg font-bold text-gray-900 mb-6">Registros Recientes</h2>
                     <RecentRetrasosTable data={recentRetrasos || []} />
                 </div>

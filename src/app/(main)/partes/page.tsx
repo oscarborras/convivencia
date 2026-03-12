@@ -39,15 +39,14 @@ export default async function PartesDashboardPage() {
     partesPorCursoRaw?.forEach((r: any) => {
         // Manejamos si alumnos es objeto o array
         const alumno = Array.isArray(r.alumnos) ? r.alumnos[0] : r.alumnos
-        const curso = alumno?.unidad || 'Sin Curso'
-        const cursoSimplificado = curso.split(' ').slice(0, 2).join(' ')
-        counts[cursoSimplificado] = (counts[cursoSimplificado] || 0) + 1
+        const unidad = alumno?.unidad || 'Sin Unidad'
+        counts[unidad] = (counts[unidad] || 0) + 1
     })
 
     const chartData = Object.entries(counts)
         .map(([name, value]) => ({ name, value }))
         .sort((a, b) => b.value - a.value)
-        .slice(0, 5)
+        .slice(0, 8)
 
     // 3. Últimos 10 partes para la tabla
     const { data: recentPartes } = await supabase
@@ -139,9 +138,9 @@ export default async function PartesDashboardPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 {/* Distribución por Gráfico */}
-                <div className="lg:col-span-3 bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-                    <h2 className="text-lg font-bold text-gray-900 mb-6 font-display">Partes por Nivel</h2>
-                    <RetrasosCharts data={chartData} />
+                <div className="lg:col-span-3 bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                    <h2 className="text-lg font-bold text-gray-900 mb-6 font-display">Partes por Unidad</h2>
+                    <RetrasosCharts data={chartData} yAxisWidth={70} />
                 </div>
 
                 {/* Tabla de Recientes */}

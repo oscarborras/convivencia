@@ -14,6 +14,7 @@ import {
 
 interface RetrasosChartsProps {
     data: { name: string; value: number }[]
+    yAxisWidth?: number
 }
 
 const COLORS = [
@@ -24,7 +25,7 @@ const COLORS = [
     'var(--chart-5)',
 ]
 
-export default function RetrasosCharts({ data }: RetrasosChartsProps) {
+export default function RetrasosCharts({ data, yAxisWidth = 90 }: RetrasosChartsProps) {
     if (data.length === 0) {
         return (
             <div className="h-[300px] flex items-center justify-center text-gray-400 border-2 border-dashed border-gray-100 rounded-3xl">
@@ -54,7 +55,7 @@ export default function RetrasosCharts({ data }: RetrasosChartsProps) {
                         axisLine={false}
                         tickLine={false}
                         tick={{ fill: '#374151', fontWeight: 500, fontSize: 13 }}
-                        width={65}
+                        width={yAxisWidth}
                     />
                     <ChartTooltip
                         cursor={{ fill: '#F9FAFB' }}
