@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { FileText, AlertTriangle, ShieldAlert, Calendar, Users, AlertOctagon } from 'lucide-react'
+import { FileText, AlertTriangle, ShieldAlert, Calendar, Users, AlertOctagon, History as HistoryIcon } from 'lucide-react'
 import RetrasosCharts from '@/components/retrasos/RetrasosCharts'
 import RecentPartesTable from '@/components/retrasos/RecentPartesTable'
 
@@ -75,6 +75,13 @@ export default async function PartesDashboardPage() {
                     <p className="text-gray-500 mt-1">Análisis y seguimiento de incidencias disciplinarias.</p>
                 </div>
                 <div className="flex gap-3">
+                    <a
+                        href="/partes/historial"
+                        className="inline-flex items-center gap-2 bg-white text-gray-700 px-5 py-2.5 rounded-2xl font-semibold border border-gray-200 hover:border-gray-900 transition-all shadow-sm"
+                    >
+                        <HistoryIcon className="w-5 h-5" />
+                        Ver Historial
+                    </a>
                     <a
                         href="/partes/crear"
                         className="inline-flex items-center gap-2 bg-red-600 text-white px-5 py-2.5 rounded-2xl font-semibold hover:bg-red-700 transition-all shadow-lg shadow-red-100"

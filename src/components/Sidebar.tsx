@@ -44,6 +44,12 @@ export default function Sidebar({ userEmail }: SidebarProps) {
             active: pathname === '/partes'
         },
         {
+            href: '/partes/historial',
+            label: 'Historial Partes',
+            icon: History,
+            active: pathname === '/partes/historial'
+        },
+        {
             href: '/importar',
             label: 'Importar',
             icon: Upload,
