@@ -3,28 +3,67 @@ import { FileText, AlertTriangle, ShieldAlert, Calendar, Users, AlertOctagon, Hi
 import RetrasosCharts from '@/components/retrasos/RetrasosCharts'
 import RecentPartesTable from '@/components/retrasos/RecentPartesTable'
 import PartesGravityChart from '@/components/dashboard/PartesGravityChart'
+import PartesFilter from '@/components/dashboard/PartesFilter'
 
-export default async function PartesDashboardPage() {
+export default async function PartesDashboardPage(props: { searchParams: Promise<{ period?: string }> }) {
+    const searchParams = await props.searchParams
     const supabase = await createClient()
     const today = new Date().toISOString().split('T')[0]
+    const now = new Date()
 
-    // 1. Estadísticas básicas
+    // 0. Obtener configuración de trimestres
+    const { data: configData } = await supabase.from('convi_config').select('*').single()
+    
+    // Identificar trimestre actual
+    let currentT = 'total'
+    if (configData) {
+        const t1S = new Date(configData.trimestre1_inicio)
+        const t1E = new Date(configData.trimestre1_fin)
+        const t2S = new Date(configData.trimestre2_inicio)
+        const t2E = new Date(configData.trimestre2_fin)
+        const t3S = new Date(configData.trimestre3_inicio)
+        const t3E = new Date(configData.trimestre3_fin)
+
+        if (now >= t1S && now <= t1E) currentT = '1'
+        else if (now >= t2S && now <= t2E) currentT = '2'
+        else if (now >= t3S && now <= t3E) currentT = '3'
+    }
+
+    const selectedPeriod = searchParams.period || currentT
+
+    // Definir límites de fecha para el filtro
+    let filterStart = '2000-01-01'
+    let filterEnd = '2099-12-31'
+
+    if (configData && selectedPeriod !== 'total') {
+        filterStart = configData[`trimestre${selectedPeriod}_inicio`]
+        filterEnd = configData[`trimestre${selectedPeriod}_fin`]
+    } else if (configData && selectedPeriod === 'total') {
+        filterStart = configData.trimestre1_inicio
+        filterEnd = configData.trimestre3_fin
+    }
+
+    // 1. Estadísticas básicas (Hoy)
     const { count: totalHoy } = await supabase
         .from('convi_partes')
         .select('*', { count: 'exact', head: true })
         .eq('fecha', today)
 
-    // Partes Leves (con conductas contrarias seleccionadas)
+    // Partes Leves (con conductas contrarias, filtrado por periodo)
     const { count: totalPartesLeves } = await supabase
         .from('convi_partes')
         .select('*', { count: 'exact', head: true })
         .neq('conductas_contrarias', '{}')
+        .gte('fecha', filterStart)
+        .lte('fecha', filterEnd)
 
-    // Partes Graves (con conductas graves seleccionadas)
+    // Partes Graves (con conductas graves, filtrado por periodo)
     const { count: totalPartesGraves } = await supabase
         .from('convi_partes')
         .select('*', { count: 'exact', head: true })
         .neq('conductas_graves', '{}')
+        .gte('fecha', filterStart)
+        .lte('fecha', filterEnd)
 
     // 2. Datos para el gráfico de partes por curso
     const { data: partesPorCursoRaw } = await supabase
@@ -35,6 +74,8 @@ export default async function PartesDashboardPage() {
                 unidad
             )
         `)
+        .gte('fecha', filterStart)
+        .lte('fecha', filterEnd)
 
     const counts: Record<string, number> = {}
     partesPorCursoRaw?.forEach((r: any) => {
@@ -98,6 +139,10 @@ export default async function PartesDashboardPage() {
                 </div>
             </div>
 
+            <div className="flex justify-end -mt-4">
+                <PartesFilter currentFilter={selectedPeriod} />
+            </div>
+
             {/* Tarjetas de Resumen */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
@@ -142,7 +187,7 @@ export default async function PartesDashboardPage() {
                             <Users className="w-6 h-6" />
                         </div>
                         <div>
-                            <p className="text-sm font-medium text-gray-500">Total Histórico</p>
+                            <p className="text-sm font-medium text-gray-500">Total Periodo</p>
                             <p className="text-2xl font-bold">{(partesPorCursoRaw?.length || 0)}</p>
                         </div>
                     </div>
