@@ -6,23 +6,39 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- Enum para las horas de clase
 CREATE TYPE hora_clase AS ENUM ('1ª', '2ª', '3ª', 'Recreo', '4ª', '5ª', '6ª');
 
--- Tabla de Partes de Disciplina y Retrasos
-CREATE TABLE IF NOT EXISTS partes (
+-- Tabla de Partes de Disciplina
+CREATE TABLE IF NOT EXISTS convi_partes (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   fecha DATE NOT NULL DEFAULT CURRENT_DATE,
   hora hora_clase NOT NULL,
   
-  -- Referencias a las tablas existentes en la base de datos actual
   alumno_id UUID NOT NULL REFERENCES alumnos(id) ON DELETE CASCADE,
   profesor_id UUID NOT NULL REFERENCES profesores(id) ON DELETE CASCADE,
   
-  -- Las conductas seleccionadas del formulario se guardarán en arrays de texto
   conductas_contrarias TEXT[] DEFAULT '{}'::TEXT[],
   conductas_graves TEXT[] DEFAULT '{}'::TEXT[],
   
   genera_expulsion BOOLEAN DEFAULT FALSE,
   observaciones TEXT,
+  registrado_por TEXT,
   
+  fecha_sancion DATE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Tabla de Retrasos
+CREATE TABLE IF NOT EXISTS convi_retrasos (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  fecha TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  
+  alumno_id UUID NOT NULL REFERENCES alumnos(id) ON DELETE CASCADE,
+  
+  justificante BOOLEAN DEFAULT FALSE,
+  sancionable BOOLEAN DEFAULT FALSE,
+  observaciones TEXT,
+  registrado_por TEXT,
+  
+  fecha_sancion DATE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 

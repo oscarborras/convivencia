@@ -13,12 +13,28 @@ export async function createRetraso(formData: FormData) {
     const sancionable = formData.get('sancionable') === 'true';
     const observaciones = formData.get('observaciones') as string;
 
+    const { data: { user } } = await supabase.auth.getUser();
+    let registradoPor = user?.email || 'Usuario Desconocido';
+
+    if (user?.email) {
+        const { data: profData } = await supabase
+            .from('profesores')
+            .select('profesor')
+            .eq('email', user.email)
+            .maybeSingle();
+        
+        if (profData?.profesor) {
+            registradoPor = profData.profesor;
+        }
+    }
+
     const retrasoData = {
         fecha: new Date().toISOString(), // Guardamos fecha y hora completa
         alumno_id: alumnoId,
         justificante,
         sancionable,
         observaciones,
+        registrado_por: registradoPor,
     }
 
     const { error } = await supabase.from('convi_retrasos').insert(retrasoData)

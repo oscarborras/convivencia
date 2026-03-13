@@ -25,6 +25,21 @@ export async function createParte(formData: FormData) {
         }
     }
 
+    const { data: { user } } = await supabase.auth.getUser();
+    let registradoPor = user?.email || 'Usuario Desconocido';
+
+    if (user?.email) {
+        const { data: profData } = await supabase
+            .from('profesores')
+            .select('profesor')
+            .eq('email', user.email)
+            .maybeSingle();
+        
+        if (profData?.profesor) {
+            registradoPor = profData.profesor;
+        }
+    }
+
     const parteData = {
         fecha: formData.get('fecha') as string,
         hora: formData.get('hora') as string,
@@ -34,6 +49,7 @@ export async function createParte(formData: FormData) {
         conductas_graves,
         genera_expulsion: formData.get('genera_expulsion') === 'true',
         observaciones: formData.get('observaciones') as string,
+        registrado_por: registradoPor,
     }
 
     const { error } = await supabase.from('convi_partes').insert(parteData)

@@ -35,6 +35,7 @@ interface DetalleParte {
     observaciones: string;
     fecha_sancion: string | null;
     profesores: any;
+    registrado_por: string | null;
 }
 
 const ITEMS_PER_PAGE = 10
@@ -212,7 +213,7 @@ export default function PartesControlPage() {
 
             const { data, error } = await supabase
                 .from('convi_partes')
-                .select('id, fecha, hora, conductas_contrarias, conductas_graves, genera_expulsion, observaciones, fecha_sancion, profesores(profesor)')
+                .select('id, fecha, hora, conductas_contrarias, conductas_graves, genera_expulsion, observaciones, fecha_sancion, registrado_por, profesores(profesor)')
                 .eq('alumno_id', alumnoId)
                 .gte('fecha', startDate)
                 .lte('fecha', endDate)
@@ -591,6 +592,14 @@ export default function PartesControlPage() {
                                                                         : detalle.profesores?.profesor || 'Profesor desconocido'}
                                                                 </span>
                                                             </div>
+                                                            {detalle.registrado_por && (
+                                                                <div className="flex items-center gap-2">
+                                                                    <Shield className="w-3.5 h-3.5 text-gray-400 opacity-60" />
+                                                                    <span className="text-[10px] font-bold text-gray-400 italic">
+                                                                        Reg: {detalle.registrado_por}
+                                                                    </span>
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     </div>
                                                     <div className="flex flex-wrap gap-2 sm:justify-end items-center sm:ml-auto">
