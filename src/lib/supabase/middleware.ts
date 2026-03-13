@@ -34,22 +34,49 @@ export async function updateSession(request: NextRequest) {
         data: { user },
     } = await supabase.auth.getUser()
 
-    if (
-        !user &&
-        !request.nextUrl.pathname.startsWith('/login') &&
-        !request.nextUrl.pathname.startsWith('/auth')
-    ) {
-        // no user, potentially respond by redirecting the user to the login page
+    const isLoginPath = request.nextUrl.pathname.startsWith('/login')
+    const isAuthPath = request.nextUrl.pathname.startsWith('/auth')
+
+    // 1. Si no hay usuario y no es ruta pública -> login
+    if (!user && !isLoginPath && !isAuthPath) {
         const url = request.nextUrl.clone()
         url.pathname = '/login'
         return NextResponse.redirect(url)
     }
 
-    // Si hay usuario y está intentando acceder al login, redirigir al dashboard
-    if (user && request.nextUrl.pathname.startsWith('/login')) {
-        const url = request.nextUrl.clone()
-        url.pathname = '/dashboard'
-        return NextResponse.redirect(url)
+    // 2. Si hay usuario, verificar rol excepto en rutas de autenticación del sistema
+    if (user && !isAuthPath) {
+        // Consultar el perfil del usuario utilizando la tabla user_roles y perfiles
+        const { data: roleData } = await supabase
+            .from('user_roles')
+            .select('perfiles(nombre)')
+            .eq('user_id', user.id)
+            .single()
+
+        const roleName = (roleData?.perfiles as any)?.nombre
+        const isAuthorized = roleName === 'Directiva'
+
+        // Caso: Intentando acceder al login estando ya autenticado
+        if (isLoginPath) {
+            if (isAuthorized) {
+                const url = request.nextUrl.clone()
+                url.pathname = '/dashboard'
+                return NextResponse.redirect(url)
+            }
+            // Si no está autorizado pero ya está en el login, dejarle para que vea el mensaje
+            return supabaseResponse
+        }
+
+        // Caso: Protegiendo todas las demás rutas
+        if (!isAuthorized) {
+            const url = request.nextUrl.clone()
+            url.pathname = '/login'
+            url.searchParams.set('errorMessage', 'Usuario o contraseña no válidos.')
+
+            // Opcional: Podríamos forzar un logout aquí para mayor limpieza, 
+            // pero el redireccionamiento con el mensaje es lo solicitado.
+            return NextResponse.redirect(url)
+        }
     }
 
     return supabaseResponse

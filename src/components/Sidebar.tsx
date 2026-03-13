@@ -185,7 +185,7 @@ export default function Sidebar({ userEmail }: SidebarProps) {
                             Cerrar sesión
                         </button>
                     </form>
-                    <span className="block text-center text-[11px] font-semibold text-slate-400 dark:text-slate-500 mt-1 uppercase tracking-wider">v.0.16.0</span>
+                    <span className="block text-center text-[11px] font-semibold text-slate-400 dark:text-slate-500 mt-1 uppercase tracking-wider">v.0.17.0</span>
                 </div>
             </aside>
         </>
