@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { Clock, AlertTriangle, CheckCircle, Calendar, Users, History as HistoryIcon, ShieldAlert } from 'lucide-react'
 import RetrasosCharts from '@/components/retrasos/RetrasosCharts'
-import RecentRetrasosTable from '@/components/retrasos/RecentRetrasosTable'
 import PartesGravityChart from '@/components/dashboard/PartesGravityChart'
 import RetrasosFilter from '@/components/dashboard/RetrasosFilter'
 import { PieChart as PieChartIcon } from 'lucide-react'
@@ -96,22 +95,6 @@ export default async function RetrasosDashboardPage(props: { searchParams: Promi
         .sort((a, b) => b.value - a.value)
         .slice(0, 8)
 
-    // 5. Últimos 10 retrasos para la tabla
-    const { data: recentRetrasos } = await supabase
-        .from('convi_retrasos')
-        .select(`
-            id,
-            fecha,
-            justificante,
-            sancionable,
-            observaciones,
-            alumnos (
-                alumno,
-                unidad
-            )
-        `)
-        .order('created_at', { ascending: false })
-        .limit(10)
 
     // 6. Estadísticas de justificación para el donut (filtradas por periodo)
     const { count: countJustificados } = await supabase
@@ -150,7 +133,7 @@ export default async function RetrasosDashboardPage(props: { searchParams: Promi
                         className="inline-flex items-center gap-2 bg-white text-gray-700 px-5 py-2.5 rounded-2xl font-semibold border border-gray-200 hover:border-gray-900 transition-all shadow-sm"
                     >
                         <HistoryIcon className="w-5 h-5" />
-                        Ver Historial
+                        Control
                     </a>
                     <a
                         href="/retrasos/crear"
@@ -259,15 +242,6 @@ export default async function RetrasosDashboardPage(props: { searchParams: Promi
                         </div>
                     </div>
                 </div>
-            </div>
-
-            {/* Tabla de Recientes - Ahora al final y a ancho completo */}
-            <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="flex items-center justify-between mb-8">
-                    <h2 className="text-xl font-bold text-gray-900 tracking-tight">Registros Recientes</h2>
-                    <a href="/retrasos/historial" className="text-sm font-bold text-blue-600 hover:text-blue-700">Ver todo</a>
-                </div>
-                <RecentRetrasosTable data={recentRetrasos || []} />
             </div>
         </div>
     )

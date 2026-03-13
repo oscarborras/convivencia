@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { FileText, AlertTriangle, ShieldAlert, Calendar, Users, AlertOctagon, History as HistoryIcon, PieChart as PieChartIcon, User, AlertCircle } from 'lucide-react'
 import RetrasosCharts from '@/components/retrasos/RetrasosCharts'
-import RecentPartesTable from '@/components/retrasos/RecentPartesTable'
 import PartesGravityChart from '@/components/dashboard/PartesGravityChart'
 import PartesFilter from '@/components/dashboard/PartesFilter'
 
@@ -108,24 +107,6 @@ export default async function PartesDashboardPage(props: { searchParams: Promise
     const professorStats = Object.values(profCounts)
         .sort((a, b) => b.total - a.total)
 
-    // 3. Últimos 10 partes para la tabla
-    const { data: recentPartes } = await supabase
-        .from('convi_partes')
-        .select(`
-            id,
-            fecha,
-            hora,
-            conductas_contrarias,
-            conductas_graves,
-            genera_expulsion,
-            observaciones,
-            alumnos (
-                alumno,
-                unidad
-            )
-        `)
-        .order('created_at', { ascending: false })
-        .limit(10)
 
     const gravityChartData = [
         { name: 'Leves', value: totalPartesLeves || 0, color: '#10b981' },
@@ -145,7 +126,7 @@ export default async function PartesDashboardPage(props: { searchParams: Promise
                         className="inline-flex items-center gap-2 bg-white text-gray-700 px-5 py-2.5 rounded-2xl font-semibold border border-gray-200 hover:border-gray-900 transition-all shadow-sm"
                     >
                         <HistoryIcon className="w-5 h-5" />
-                        Ver Historial
+                        Control
                     </a>
                     <a
                         href="/partes/crear"
@@ -303,11 +284,6 @@ export default async function PartesDashboardPage(props: { searchParams: Promise
                     </div>
                 </div>
 
-                {/* Tabla de Recientes */}
-                <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-                    <h2 className="text-xl font-bold text-gray-900 mb-8">Partes Recientes</h2>
-                    <RecentPartesTable data={recentPartes || []} />
-                </div>
             </div>
         </div>
     )

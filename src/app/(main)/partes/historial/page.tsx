@@ -289,20 +289,17 @@ export default function HistorialPartesPage() {
     }
 
     return (
-        <div className="max-w-6xl mx-auto space-y-6 pb-12 animate-in fade-in duration-500">
+        <div className="max-w-6xl mx-auto space-y-2 -mt-6 pb-4 animate-in fade-in duration-500">
             {/* Cabecera */}
-            <div className="bg-white rounded-3xl p-8 border-t-4 border-rose-500 shadow-sm relative overflow-hidden">
+            <div className="bg-white rounded-3xl p-5 border-t-4 border-rose-500 shadow-sm relative overflow-hidden">
                 <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div>
-                        <div className="flex items-center gap-3 mb-3">
+                        <div className="flex items-center gap-3">
                             <div className="bg-rose-50 p-2.5 rounded-2xl text-rose-600">
-                                <FileText className="w-7 h-7" />
+                                <FileText className="w-6 h-6" />
                             </div>
-                            <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Historial de Partes</h1>
+                            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Control de Partes</h1>
                         </div>
-                        <p className="text-gray-600 text-base leading-relaxed max-w-xl">
-                            Consulta el recuento de partes por alumno segmentado por trimestre y gravedad.
-                        </p>
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-3">
@@ -404,41 +401,41 @@ export default function HistorialPartesPage() {
                                         className="hover:bg-rose-50/30 transition-all group cursor-pointer"
                                         onClick={() => fetchAlumnoDetails(alu.id, alu.alumno)}
                                     >
-                                        <td className="px-6 py-4">
+                                        <td className="px-4 py-1.5">
                                             <div className="flex items-center gap-3">
-                                                <div className="bg-gray-100 p-2.5 rounded-xl text-gray-500 group-hover:bg-rose-600 group-hover:text-white transition-all shadow-sm">
-                                                    <User className="w-4 h-4" />
+                                                <div className="bg-gray-100 p-2 rounded-xl text-gray-500 group-hover:bg-rose-600 group-hover:text-white transition-all shadow-sm">
+                                                    <User className="w-3.5 h-3.5" />
                                                 </div>
-                                                <span className="font-bold text-gray-900 group-hover:text-rose-700 transition-colors">{alu.alumno}</span>
+                                                <span className="font-bold text-gray-900 text-xs group-hover:text-rose-700 transition-colors">{alu.alumno}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-gray-600 font-medium">{alu.unidad}</td>
-                                        <td className="px-6 py-4 text-center">
-                                            <div className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 px-3 py-1 rounded-full text-sm font-bold border border-amber-100/50">
-                                                <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
+                                        <td className="px-4 py-1.5 text-xs text-gray-600 font-medium">{alu.unidad}</td>
+                                        <td className="px-4 py-1.5 text-center">
+                                            <div className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 px-3 py-1 rounded-full text-[11px] font-bold border border-amber-100/50">
+                                                <AlertTriangle className="w-3 h-3 text-amber-500" />
                                                 {alu.leves}
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-center">
-                                            <div className="inline-flex items-center gap-1.5 bg-orange-50 text-orange-700 px-3 py-1 rounded-full text-sm font-bold border border-orange-100/50">
-                                                <AlertCircle className="w-3.5 h-3.5 text-orange-500" />
+                                        <td className="px-4 py-1.5 text-center">
+                                            <div className="inline-flex items-center gap-1.5 bg-orange-50 text-orange-700 px-3 py-1 rounded-full text-[11px] font-bold border border-orange-100/50">
+                                                <AlertCircle className="w-3 h-3 text-orange-500" />
                                                 {alu.graves}
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-center">
-                                            <div className="inline-flex items-center gap-1.5 bg-rose-50 text-rose-700 px-3 py-1 rounded-full text-sm font-bold border border-rose-100/50">
-                                                <XCircle className="w-3.5 h-3.5" />
+                                        <td className="px-4 py-1.5 text-center">
+                                            <div className="inline-flex items-center gap-1.5 bg-rose-50 text-rose-700 px-3 py-1 rounded-full text-[11px] font-bold border border-rose-100/50">
+                                                <XCircle className="w-3 h-3" />
                                                 {alu.expulsiones}
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-center">
-                                            <div className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm font-bold border border-blue-100/50">
-                                                <Smartphone className="w-3.5 h-3.5 text-blue-500" />
+                                        <td className="px-4 py-1.5 text-center">
+                                            <div className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-[11px] font-bold border border-blue-100/50">
+                                                <Smartphone className="w-3 h-3 text-blue-500" />
                                                 {alu.moviles}
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-center">
-                                            <span className="text-lg font-black text-rose-600 bg-rose-50 w-10 h-10 inline-flex items-center justify-center rounded-2xl shadow-sm border border-rose-100 group-hover:bg-rose-600 group-hover:text-white transition-all">
+                                        <td className="px-4 py-1.5 text-center">
+                                            <span className="text-base font-black text-rose-600 bg-rose-50 w-8 h-8 inline-flex items-center justify-center rounded-xl shadow-sm border border-rose-100 group-hover:bg-rose-600 group-hover:text-white transition-all">
                                                 {alu.total}
                                             </span>
                                         </td>
