@@ -247,7 +247,7 @@ export default async function RetrasosDashboardPage(props: { searchParams: Promi
                     <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 flex flex-col">
                         <div className="flex items-center justify-between mb-8">
                             <div>
-                                <h2 className="text-xl font-bold text-gray-900 tracking-tight">Naturaleza</h2>
+                                <h2 className="text-xl font-bold text-gray-900 tracking-tight">Sancionables</h2>
                                 <p className="text-sm text-gray-500 font-medium">{nombrePeriodo}</p>
                             </div>
                             <div className="bg-rose-50 p-2.5 rounded-2xl text-rose-600">

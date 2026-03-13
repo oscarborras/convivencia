@@ -169,7 +169,7 @@ export default function HistorialPartesPage() {
                     }
 
                     const CONDUCTA_MOVIL = "Usar móviles, aparatos electrónicos y similares sin permiso";
-                    
+
                     groupedMap[alu.id].total++
                     if (r.conductas_contrarias && r.conductas_contrarias.length > 0) {
                         groupedMap[alu.id].leves++

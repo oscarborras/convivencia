@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { FileText, AlertTriangle, ShieldAlert, Calendar, Users, AlertOctagon, History as HistoryIcon, PieChart as PieChartIcon } from 'lucide-react'
+import { FileText, AlertTriangle, ShieldAlert, Calendar, Users, AlertOctagon, History as HistoryIcon, PieChart as PieChartIcon, User, AlertCircle } from 'lucide-react'
 import RetrasosCharts from '@/components/retrasos/RetrasosCharts'
 import RecentPartesTable from '@/components/retrasos/RecentPartesTable'
 import PartesGravityChart from '@/components/dashboard/PartesGravityChart'
@@ -13,7 +13,7 @@ export default async function PartesDashboardPage(props: { searchParams: Promise
 
     // 0. Obtener configuración de trimestres
     const { data: configData } = await supabase.from('convi_config').select('*').single()
-    
+
     // Identificar trimestre actual
     let currentT = 'total'
     if (configData) {
@@ -65,30 +65,48 @@ export default async function PartesDashboardPage(props: { searchParams: Promise
         .gte('fecha', filterStart)
         .lte('fecha', filterEnd)
 
-    // 2. Datos para el gráfico de partes por curso
-    const { data: partesPorCursoRaw } = await supabase
+    // 2. Obtener datos detallados del periodo para estadísticas agrupadas
+    const { data: partesPeriodo } = await supabase
         .from('convi_partes')
         .select(`
-            id,
-            alumnos (
-                unidad
-            )
+            conductas_contrarias,
+            conductas_graves,
+            profesores (profesor),
+            alumnos (unidad)
         `)
         .gte('fecha', filterStart)
         .lte('fecha', filterEnd)
 
-    const counts: Record<string, number> = {}
-    partesPorCursoRaw?.forEach((r: any) => {
-        // Manejamos si alumnos es objeto o array
-        const alumno = Array.isArray(r.alumnos) ? r.alumnos[0] : r.alumnos
-        const unidad = alumno?.unidad || 'Sin Unidad'
-        counts[unidad] = (counts[unidad] || 0) + 1
+    // Procesar datos para gráficos y estadísticas
+    const unidadCounts: Record<string, number> = {}
+    const profCounts: Record<string, { name: string, leves: number, graves: number, total: number }> = {}
+
+    partesPeriodo?.forEach((r: any) => {
+        // Unidades
+        const unidad = (Array.isArray(r.alumnos) ? r.alumnos[0] : r.alumnos)?.unidad || 'Sin Unidad'
+        unidadCounts[unidad] = (unidadCounts[unidad] || 0) + 1
+
+        // Profesores
+        const profName = (Array.isArray(r.profesores) ? r.profesores[0] : r.profesores)?.profesor || 'Desconocido'
+        if (!profCounts[profName]) {
+            profCounts[profName] = { name: profName, leves: 0, graves: 0, total: 0 }
+        }
+        
+        const isLeve = r.conductas_contrarias && r.conductas_contrarias.length > 0 && JSON.stringify(r.conductas_contrarias) !== '[]' && JSON.stringify(r.conductas_contrarias) !== '{}'
+        const isGrave = r.conductas_graves && r.conductas_graves.length > 0 && JSON.stringify(r.conductas_graves) !== '[]' && JSON.stringify(r.conductas_graves) !== '{}'
+        
+        if (isLeve) profCounts[profName].leves++
+        if (isGrave) profCounts[profName].graves++
+        profCounts[profName].total++
     })
 
-    const chartData = Object.entries(counts)
+    const chartData = Object.entries(unidadCounts)
         .map(([name, value]) => ({ name, value }))
         .sort((a, b) => b.value - a.value)
         .slice(0, 8)
+
+    const professorStats = Object.values(profCounts)
+        .sort((a, b) => b.total - a.total)
 
     // 3. Últimos 10 partes para la tabla
     const { data: recentPartes } = await supabase
@@ -188,7 +206,7 @@ export default async function PartesDashboardPage(props: { searchParams: Promise
                         </div>
                         <div>
                             <p className="text-sm font-medium text-gray-500">Total Periodo</p>
-                            <p className="text-2xl font-bold">{(partesPorCursoRaw?.length || 0)}</p>
+                            <p className="text-2xl font-bold">{partesPeriodo?.length || 0}</p>
                         </div>
                     </div>
                 </div>
@@ -220,7 +238,70 @@ export default async function PartesDashboardPage(props: { searchParams: Promise
                 </div>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-8">
+                {/* Actividad por Profesor */}
+                <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div className="flex items-center gap-3 mb-8">
+                        <div className="bg-blue-50 p-2.5 rounded-2xl text-blue-600">
+                            <User className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <h2 className="text-xl font-bold text-gray-900 tracking-tight">Actividad por Profesor</h2>
+                            <p className="text-sm text-gray-500 font-medium">Partes registrados en el periodo seleccionado</p>
+                        </div>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="bg-gray-50/50">
+                                    <th className="px-6 py-4 text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">Profesor</th>
+                                    <th className="px-6 py-4 text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center leading-tight">Leves</th>
+                                    <th className="px-6 py-4 text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center leading-tight">Graves</th>
+                                    <th className="px-6 py-4 text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center leading-tight">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-50">
+                                {professorStats.map((prof, idx) => (
+                                    <tr key={idx} className="group hover:bg-rose-50/30 transition-all cursor-default">
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="bg-gray-100 p-2.5 rounded-xl text-gray-500 group-hover:bg-rose-600 group-hover:text-white transition-all shadow-sm">
+                                                    <User className="w-4 h-4" />
+                                                </div>
+                                                <span className="font-bold text-gray-900 group-hover:text-rose-700 transition-colors uppercase text-sm tracking-tight">{prof.name}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-center">
+                                            <div className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 px-3 py-1 rounded-full text-sm font-bold border border-amber-100/50">
+                                                <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
+                                                {prof.leves}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-center">
+                                            <div className="inline-flex items-center gap-1.5 bg-orange-50 text-orange-700 px-3 py-1 rounded-full text-sm font-bold border border-orange-100/50">
+                                                <AlertCircle className="w-3.5 h-3.5 text-orange-500" />
+                                                {prof.graves}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-center">
+                                            <span className="text-sm font-black text-rose-600 bg-rose-50 w-8 h-8 inline-flex items-center justify-center rounded-xl shadow-sm border border-rose-100 group-hover:bg-rose-600 group-hover:text-white transition-all">
+                                                {prof.total}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))}
+                                {professorStats.length === 0 && (
+                                    <tr>
+                                        <td colSpan={4} className="py-12 text-center text-gray-400 font-medium">
+                                            No hay actividad registrada en este periodo
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
                 {/* Tabla de Recientes */}
                 <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 overflow-hidden">

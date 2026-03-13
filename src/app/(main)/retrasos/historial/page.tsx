@@ -562,26 +562,26 @@ export default function HistorialRetrasosPage() {
 
                                             <div className="flex-1">
                                                 <div className="flex flex-col sm:flex-row justify-between items-start gap-2 mb-2">
-                                                     <div className="flex flex-col gap-1">
-                                                         <div className="flex items-center gap-3">
-                                                             <div className="bg-indigo-50 text-indigo-600 p-2 rounded-xl shrink-0">
-                                                                 <Calendar className="w-4 h-4" />
-                                                             </div>
-                                                             <span className="font-black text-gray-900 group-hover:text-indigo-700 transition-colors whitespace-nowrap">
-                                                                 {new Date(detalle.fecha).toLocaleDateString('es-ES', {
-                                                                     weekday: 'short',
-                                                                     day: 'numeric',
-                                                                     month: 'long'
-                                                                 })}
-                                                             </span>
-                                                         </div>
-                                                         <div className="ml-11 flex items-center gap-2">
-                                                             <Clock className="w-3.5 h-3.5 text-gray-400 opacity-60" />
-                                                             <span className="text-xs font-bold text-gray-400 whitespace-nowrap">
-                                                                 {new Date(detalle.fecha).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
-                                                             </span>
-                                                         </div>
-                                                     </div>
+                                                    <div className="flex flex-col gap-1">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="bg-indigo-50 text-indigo-600 p-2 rounded-xl shrink-0">
+                                                                <Calendar className="w-4 h-4" />
+                                                            </div>
+                                                            <span className="font-black text-gray-900 group-hover:text-indigo-700 transition-colors whitespace-nowrap">
+                                                                {new Date(detalle.fecha).toLocaleDateString('es-ES', {
+                                                                    weekday: 'short',
+                                                                    day: 'numeric',
+                                                                    month: 'long'
+                                                                })}
+                                                            </span>
+                                                        </div>
+                                                        <div className="ml-11 flex items-center gap-2">
+                                                            <Clock className="w-3.5 h-3.5 text-gray-400 opacity-60" />
+                                                            <span className="text-xs font-bold text-gray-400 whitespace-nowrap">
+                                                                {new Date(detalle.fecha).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+                                                            </span>
+                                                        </div>
+                                                    </div>
                                                     <div className="flex flex-wrap gap-2 sm:justify-end items-center sm:ml-auto">
                                                         {detalle.justificante ? (
                                                             <span className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border border-emerald-100">Justificado</span>
