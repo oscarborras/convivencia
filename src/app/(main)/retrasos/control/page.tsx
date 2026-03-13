@@ -506,7 +506,7 @@ export default function RetrasosControlPage() {
                             ) : alumnoDetails.length > 0 ? (
                                 <div className="space-y-4">
                                     {/* Barra de acciones masivas */}
-                                    <div className="bg-indigo-50/50 rounded-2xl p-4 flex flex-col sm:flex-row items-center gap-4 mb-6 sticky top-0 z-10 backdrop-blur-md border border-indigo-100/50">
+                                    <div className="bg-rose-50/50 rounded-2xl p-4 flex flex-col sm:flex-row items-center gap-4 mb-6 sticky top-0 z-10 backdrop-blur-md border border-indigo-100/50">
                                         <div className="flex items-center gap-3 flex-1">
                                             <input
                                                 type="checkbox"
@@ -543,7 +543,7 @@ export default function RetrasosControlPage() {
                                     {alumnoDetails.map((detalle) => (
                                         <div
                                             key={detalle.id}
-                                            className={`bg-white border rounded-3xl p-5 transition-all group relative flex gap-4 ${selectedRecords.includes(detalle.id)
+                                            className={`bg-indigo-50/50 border rounded-3xl p-5 transition-all group relative flex gap-4 ${selectedRecords.includes(detalle.id)
                                                 ? 'border-indigo-400 shadow-lg shadow-indigo-50 ring-2 ring-indigo-500/10 scale-[1.01]'
                                                 : 'border-gray-100 hover:border-gray-300'
                                                 }`}

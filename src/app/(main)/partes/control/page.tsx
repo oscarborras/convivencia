@@ -547,7 +547,7 @@ export default function PartesControlPage() {
                                     {alumnoDetails.map((detalle) => (
                                         <div
                                             key={detalle.id}
-                                            className={`bg-white border rounded-3xl p-5 transition-all group relative flex gap-4 ${selectedRecords.includes(detalle.id)
+                                            className={`bg-indigo-50/50 border rounded-3xl p-5 transition-all group relative flex gap-4 ${selectedRecords.includes(detalle.id)
                                                 ? 'border-rose-400 shadow-lg shadow-rose-50 ring-2 ring-rose-500/10 scale-[1.01]'
                                                 : 'border-gray-100 hover:border-gray-300'
                                                 }`}
