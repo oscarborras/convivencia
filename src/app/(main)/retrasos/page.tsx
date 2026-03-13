@@ -133,7 +133,7 @@ export default async function RetrasosDashboardPage(props: { searchParams: Promi
                         className="inline-flex items-center gap-2 bg-white text-gray-700 px-5 py-2.5 rounded-2xl font-semibold border border-gray-200 hover:border-gray-900 transition-all shadow-sm"
                     >
                         <HistoryIcon className="w-5 h-5" />
-                        Control
+                        Historial
                     </a>
                     <a
                         href="/retrasos/crear"
@@ -156,7 +156,7 @@ export default async function RetrasosDashboardPage(props: { searchParams: Promi
                         <Calendar className="w-6 h-6" />
                     </div>
                     <div>
-                        <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-0.5">Hoy</p>
+                        <p className="text-sm font-medium text-gray-500">Hoy</p>
                         <p className="text-2xl font-black text-gray-900 leading-none">{totalHoy || 0}</p>
                     </div>
                 </div>
@@ -166,7 +166,7 @@ export default async function RetrasosDashboardPage(props: { searchParams: Promi
                         <Clock className="w-6 h-6" />
                     </div>
                     <div>
-                        <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-0.5">{nombrePeriodo}</p>
+                        <p className="text-sm font-medium text-gray-500">{nombrePeriodo}</p>
                         <p className="text-2xl font-black text-gray-900 leading-none">{totalTrimestre || 0}</p>
                     </div>
                 </div>
@@ -176,7 +176,7 @@ export default async function RetrasosDashboardPage(props: { searchParams: Promi
                         <Users className="w-6 h-6" />
                     </div>
                     <div>
-                        <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-0.5">Alumnos Sancionables</p>
+                        <p className="text-sm font-medium text-gray-500">Alumnos Sancionables</p>
                         <p className="text-2xl font-black text-gray-900 leading-none">{countAlumnosPendientes || 0}</p>
                     </div>
                 </div>
@@ -186,7 +186,7 @@ export default async function RetrasosDashboardPage(props: { searchParams: Promi
                         <AlertTriangle className="w-6 h-6" />
                     </div>
                     <div>
-                        <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-0.5">Registros Sancionables</p>
+                        <p className="text-sm font-medium text-gray-500">Registros Sancionables</p>
                         <p className="text-2xl font-black text-gray-900 leading-none">{totalSancionables || 0}</p>
                     </div>
                 </div>

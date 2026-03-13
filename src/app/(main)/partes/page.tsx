@@ -90,10 +90,10 @@ export default async function PartesDashboardPage(props: { searchParams: Promise
         if (!profCounts[profName]) {
             profCounts[profName] = { name: profName, leves: 0, graves: 0, total: 0 }
         }
-        
+
         const isLeve = r.conductas_contrarias && r.conductas_contrarias.length > 0 && JSON.stringify(r.conductas_contrarias) !== '[]' && JSON.stringify(r.conductas_contrarias) !== '{}'
         const isGrave = r.conductas_graves && r.conductas_graves.length > 0 && JSON.stringify(r.conductas_graves) !== '[]' && JSON.stringify(r.conductas_graves) !== '{}'
-        
+
         if (isLeve) profCounts[profName].leves++
         if (isGrave) profCounts[profName].graves++
         profCounts[profName].total++
@@ -126,7 +126,7 @@ export default async function PartesDashboardPage(props: { searchParams: Promise
                         className="inline-flex items-center gap-2 bg-white text-gray-700 px-5 py-2.5 rounded-2xl font-semibold border border-gray-200 hover:border-gray-900 transition-all shadow-sm"
                     >
                         <HistoryIcon className="w-5 h-5" />
-                        Control
+                        Historial
                     </a>
                     <a
                         href="/partes/crear"
@@ -158,6 +158,18 @@ export default async function PartesDashboardPage(props: { searchParams: Promise
 
                 <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
                     <div className="flex items-center gap-4">
+                        <div className="bg-purple-50 p-3 rounded-2xl text-purple-600">
+                            <Users className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-medium text-gray-500">Total Periodo</p>
+                            <p className="text-2xl font-bold">{partesPeriodo?.length || 0}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                    <div className="flex items-center gap-4">
                         <div className="bg-orange-50 p-3 rounded-2xl text-orange-600">
                             <AlertTriangle className="w-6 h-6" />
                         </div>
@@ -180,17 +192,6 @@ export default async function PartesDashboardPage(props: { searchParams: Promise
                     </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                    <div className="flex items-center gap-4">
-                        <div className="bg-purple-50 p-3 rounded-2xl text-purple-600">
-                            <Users className="w-6 h-6" />
-                        </div>
-                        <div>
-                            <p className="text-sm font-medium text-gray-500">Total Periodo</p>
-                            <p className="text-2xl font-bold">{partesPeriodo?.length || 0}</p>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">

@@ -40,16 +40,16 @@ export default function Sidebar({ userEmail }: SidebarProps) {
                     active: pathname === '/retrasos'
                 },
                 {
-                    href: '/retrasos/historial',
+                    href: '/retrasos/control',
                     label: 'Control',
                     icon: BarChart3,
-                    active: pathname === '/retrasos/historial'
+                    active: pathname === '/retrasos/control'
                 },
                 {
-                    href: '/retrasos/registros',
+                    href: '/retrasos/historial',
                     label: 'Historial',
                     icon: History,
-                    active: pathname === '/retrasos/registros'
+                    active: pathname === '/retrasos/historial'
                 }
             ]
         },
@@ -63,16 +63,16 @@ export default function Sidebar({ userEmail }: SidebarProps) {
                     active: pathname === '/partes'
                 },
                 {
-                    href: '/partes/historial',
+                    href: '/partes/control',
                     label: 'Control',
                     icon: BarChart3,
-                    active: pathname === '/partes/historial'
+                    active: pathname === '/partes/control'
                 },
                 {
-                    href: '/partes/registros',
+                    href: '/partes/historial',
                     label: 'Historial',
                     icon: History,
-                    active: pathname === '/partes/registros'
+                    active: pathname === '/partes/historial'
                 }
             ]
         },
@@ -185,6 +185,7 @@ export default function Sidebar({ userEmail }: SidebarProps) {
                             Cerrar sesión
                         </button>
                     </form>
+                    <span className="block text-center text-[11px] font-semibold text-slate-400 dark:text-slate-500 mt-1 uppercase tracking-wider">v.0.14.0</span>
                 </div>
             </aside>
         </>
@@ -192,21 +193,21 @@ export default function Sidebar({ userEmail }: SidebarProps) {
 }
 
 function User(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-      <circle cx="12" cy="7" r="4" />
-    </svg>
-  )
+    return (
+        <svg
+            {...props}
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        >
+            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+        </svg>
+    )
 }
