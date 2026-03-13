@@ -1,12 +1,15 @@
 'use client'
 
-import { AlertCircle, AlertTriangle } from 'lucide-react'
+import { useState } from 'react'
+import { AlertCircle, AlertTriangle, X, Info, User, Calendar, Clock, Shield, CheckCircle2, FileText } from 'lucide-react'
 
 interface RecentPartesTableProps {
     data: any[]
 }
 
 export default function RecentPartesTable({ data }: RecentPartesTableProps) {
+    const [selectedRecord, setSelectedRecord] = useState<any | null>(null)
+
     if (data.length === 0) {
         return (
             <div className="py-12 text-center text-gray-500">
@@ -42,9 +45,20 @@ export default function RecentPartesTable({ data }: RecentPartesTableProps) {
                         }
 
                         return (
-                            <tr key={parte.id} className="group hover:bg-gray-50/50 transition-colors">
+                            <tr
+                                key={parte.id}
+                                className="group hover:bg-rose-50/50 transition-colors cursor-pointer"
+                                onClick={() => setSelectedRecord(parte)}
+                            >
                                 <td className="py-2 px-4">
-                                    <p className="font-semibold text-[13px] text-gray-900 line-clamp-1">{alumno?.alumno || 'Desconocido'}</p>
+                                    <div className="flex items-center gap-3">
+                                        <div className="bg-gray-100 p-2 rounded-xl text-gray-500 group-hover:bg-rose-600 group-hover:text-white transition-all shadow-sm shrink-0">
+                                            <User className="w-3.5 h-3.5" />
+                                        </div>
+                                        <p className="font-semibold text-[13px] text-gray-900 line-clamp-1 group-hover:text-rose-700 transition-colors">
+                                            {alumno?.alumno || 'Desconocido'}
+                                        </p>
+                                    </div>
                                 </td>
                                 <td className="py-2 px-4 hidden sm:table-cell">
                                     <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700">
@@ -57,7 +71,7 @@ export default function RecentPartesTable({ data }: RecentPartesTableProps) {
                                             {new Date(parte.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' })}
                                         </span>
                                         <span className="text-[10px] text-gray-400 font-bold tracking-wider uppercase">
-                                            {parte.hora}
+                                            {parte.hora?.substring(0, 5) || '--:--'}
                                         </span>
                                     </div>
                                 </td>
@@ -81,6 +95,167 @@ export default function RecentPartesTable({ data }: RecentPartesTableProps) {
                     })}
                 </tbody>
             </table>
+
+            {/* Modal de Detalle */}
+            {selectedRecord && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white w-full max-w-xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-rose-50 flex flex-col max-h-[90vh]">
+                        {/* Header */}
+                        <div className="px-8 py-6 bg-rose-50/30 border-b border-rose-100/50 flex justify-between items-center shrink-0">
+                            <div className="flex items-center gap-4">
+                                <div className="bg-rose-600 p-3 rounded-2xl text-white shadow-lg shadow-rose-100">
+                                    <FileText className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <h2 className="text-xl font-black text-gray-900 leading-tight">Detalle del Parte</h2>
+                                    <p className="text-[10px] font-bold text-rose-400 uppercase tracking-widest">Información completa de la BD</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setSelectedRecord(null)}
+                                className="p-2.5 rounded-2xl hover:bg-white text-gray-400 hover:text-rose-600 transition-all shadow-sm border border-transparent hover:border-rose-100"
+                            >
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+
+                        {/* Body */}
+                        <div className="p-8 space-y-6 overflow-y-auto custom-scrollbar">
+                            {/* Alumno Info */}
+                            <div className="flex items-center gap-4 bg-gray-50/50 p-4 rounded-3xl border border-gray-100">
+                                <div className="bg-white p-3 rounded-2xl shadow-sm border border-gray-100">
+                                    <User className="w-6 h-6 text-rose-500" />
+                                </div>
+                                <div>
+                                    <h3 className="font-black text-gray-900 text-lg leading-tight">
+                                        {(Array.isArray(selectedRecord.alumnos) ? selectedRecord.alumnos[0] : selectedRecord.alumnos)?.alumno || 'Desconocido'}
+                                    </h3>
+                                    <span className="text-xs font-bold text-rose-400 uppercase tracking-wider">
+                                        {(Array.isArray(selectedRecord.alumnos) ? selectedRecord.alumnos[0] : selectedRecord.alumnos)?.unidad || 'N/A'}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* Grid Info */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm space-y-1">
+                                    <div className="flex items-center gap-2 text-gray-400 mb-1">
+                                        <Calendar className="w-3.5 h-3.5" />
+                                        <span className="text-[10px] font-black uppercase tracking-widest">Fecha</span>
+                                    </div>
+                                    <p className="font-bold text-gray-900 text-sm">
+                                        {new Date(selectedRecord.fecha).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                                    </p>
+                                </div>
+                                <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm space-y-1">
+                                    <div className="flex items-center gap-2 text-gray-400 mb-1">
+                                        <Clock className="w-3.5 h-3.5" />
+                                        <span className="text-[10px] font-black uppercase tracking-widest">Hora</span>
+                                    </div>
+                                    <p className="font-bold text-gray-900 text-sm">
+                                        {selectedRecord.hora?.substring(0, 5) || '--:--'}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Conductas */}
+                            <div className="space-y-4">
+                                {selectedRecord.conductas_contrarias && selectedRecord.conductas_contrarias.length > 0 && (
+                                    <div className="space-y-2">
+                                        <p className="text-[10px] font-black text-amber-500 uppercase tracking-widest ml-1">Conductas Contrarias (Leves)</p>
+                                        <div className="flex flex-wrap gap-2">
+                                            {selectedRecord.conductas_contrarias.map((c: string, i: number) => (
+                                                <span key={i} className="bg-amber-50 text-amber-700 px-3 py-1.5 rounded-xl text-[10px] font-bold border border-amber-100 leading-tight">
+                                                    {c}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {selectedRecord.conductas_graves && selectedRecord.conductas_graves.length > 0 && (
+                                    <div className="space-y-2">
+                                        <p className="text-[10px] font-black text-red-500 uppercase tracking-widest ml-1">Conductas Graves</p>
+                                        <div className="flex flex-wrap gap-2">
+                                            {selectedRecord.conductas_graves.map((c: string, i: number) => (
+                                                <span key={i} className="bg-red-50 text-red-700 px-3 py-1.5 rounded-xl text-[10px] font-bold border border-red-100 leading-tight">
+                                                    {c}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Status Badges */}
+                            <div className="flex flex-wrap gap-3">
+                                {selectedRecord.genera_expulsion && (
+                                    <span className="bg-red-600 text-white px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-wider border border-red-700 flex items-center gap-2 shadow-sm shadow-red-100">
+                                        <AlertCircle className="w-4 h-4" /> Genera Expulsión
+                                    </span>
+                                )}
+
+                                {selectedRecord.fecha_sancion && (
+                                    <span className="bg-blue-50 text-blue-700 px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-wider border border-blue-100 flex items-center gap-2 shadow-sm">
+                                        <Shield className="w-4 h-4" /> Sancionado ({new Date(selectedRecord.fecha_sancion).toLocaleDateString('es-ES')})
+                                    </span>
+                                )}
+                            </div>
+
+                            {/* Profesor */}
+                            <div className="bg-gray-50/50 p-4 rounded-3xl border border-gray-100">
+                                <div className="flex items-center gap-3">
+                                    <div className="bg-white p-2 rounded-xl border border-gray-100 shadow-xs">
+                                        <User className="w-4 h-4 text-gray-400" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Profesor/a Aplicador</p>
+                                        <p className="font-bold text-gray-700 text-xs">
+                                            {selectedRecord.profesores?.profesor || 'No especificado'}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Observaciones */}
+                            {selectedRecord.observaciones && (
+                                <div className="bg-gray-50/80 p-5 rounded-[2rem] border border-gray-100 relative overflow-hidden group">
+                                    <div className="relative z-10">
+                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3">Observaciones</p>
+                                        <p className="text-sm text-gray-700 font-medium leading-relaxed italic">
+                                            "{selectedRecord.observaciones}"
+                                        </p>
+                                    </div>
+                                    <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                                        <Info className="w-8 h-8 text-rose-600" />
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Registro Meta */}
+                            {selectedRecord.registrado_por && (
+                                <div className="flex items-center justify-between px-2 pt-2 border-t border-gray-100 mt-4 shrink-0">
+                                    <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest">ID: {selectedRecord.id.substring(0, 8)}...</span>
+                                    <div className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-full border border-gray-100">
+                                        <Shield className="w-3 h-3 text-rose-400" />
+                                        <span className="text-[10px] font-bold text-gray-500 italic">Reg: {selectedRecord.registrado_por}</span>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Footer */}
+                        <div className="px-8 py-6 bg-gray-50/50 border-t border-gray-100 flex justify-end shrink-0">
+                            <button
+                                onClick={() => setSelectedRecord(null)}
+                                className="bg-white text-gray-900 px-8 py-3 rounded-2xl font-black text-sm border border-gray-200 hover:border-gray-900 transition-all shadow-sm active:scale-95"
+                            >
+                                Cerrar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
