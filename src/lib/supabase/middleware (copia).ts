@@ -34,23 +34,43 @@ export async function updateSession(request: NextRequest) {
         data: { user },
     } = await supabase.auth.getUser()
 
+    console.log('DEBUG MIDDLEWARE:', { 
+        path: request.nextUrl.pathname, 
+        hasUser: !!user, 
+        userId: user?.id,
+        cookiesFound: request.cookies.getAll().map(c => c.name)
+    })
+
     const isLoginPath = request.nextUrl.pathname.startsWith('/login')
     const isAuthPath = request.nextUrl.pathname.startsWith('/auth')
     const hasAuthCode = request.nextUrl.searchParams.has('code')
 
-    // 1. Si detectamos un código de auth y estamos en el callback, dejamos pasar al Route Handler
+    // 1. Si tiene código de auth pero no estamos en el callback, redirigimos nosotros al callback
+    // Esto arregla el problema cuando Supabase nos manda a la raíz / en vez de a /auth/callback
+    if (hasAuthCode && !isAuthPath) {
+        console.log('DEBUG: Auth code detected on WRONG path. Redirecting to /auth/callback')
+        const url = request.nextUrl.clone()
+        url.pathname = '/auth/callback'
+        return NextResponse.redirect(url)
+    }
+
     if (hasAuthCode && isAuthPath) {
+        console.log('DEBUG: Auth code detected on CORRECT path. Letting it pass.')
         return supabaseResponse
     }
 
-    // 2. Redirigir al login si no hay sesión y se intenta acceder a una ruta protegida
+
+    // 2. Si no hay usuario y no es ruta pública -> login
     if (!user && !isLoginPath && !isAuthPath) {
+        console.log('DEBUG: No user found, redirecting to login')
         const url = request.nextUrl.clone()
         url.pathname = '/login'
         return NextResponse.redirect(url)
     }
 
-    // 3. Si hay sesión, verificar rol y redirecciones inteligentes
+
+
+    // 2. Si hay usuario, verificar rol excepto en rutas de autenticación del sistema
     if (user && !isAuthPath) {
         // Consultar el perfil del usuario utilizando la tabla user_roles y perfiles
         const { data: roleData, error: roleError } = await supabase
