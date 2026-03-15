@@ -44,13 +44,20 @@ export async function updateSession(request: NextRequest) {
     const isAuthPath = request.nextUrl.pathname.startsWith('/auth')
     const hasAuthCode = request.nextUrl.searchParams.has('code')
 
-    // 1. Si no hay usuario, no es ruta pública y NO tiene código de auth -> login
-    if (!user && !isLoginPath && !isAuthPath && !hasAuthCode) {
-        console.log('DEBUG: No user found and no auth code, redirecting to login')
+    // 1. Si tiene código de auth, dejamos pasar para que la app lo procese (evita bucles en producción)
+    if (hasAuthCode) {
+        console.log('DEBUG: Auth code detected, letting request pass to:', request.nextUrl.pathname)
+        return supabaseResponse
+    }
+
+    // 2. Si no hay usuario y no es ruta pública -> login
+    if (!user && !isLoginPath && !isAuthPath) {
+        console.log('DEBUG: No user found, redirecting to login')
         const url = request.nextUrl.clone()
         url.pathname = '/login'
         return NextResponse.redirect(url)
     }
+
 
 
     // 2. Si hay usuario, verificar rol excepto en rutas de autenticación del sistema
