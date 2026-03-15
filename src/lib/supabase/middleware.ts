@@ -45,11 +45,20 @@ export async function updateSession(request: NextRequest) {
     const isAuthPath = request.nextUrl.pathname.startsWith('/auth')
     const hasAuthCode = request.nextUrl.searchParams.has('code')
 
-    // 1. Si tiene código de auth, dejamos pasar para que la app lo procese (evita bucles en producción)
-    if (hasAuthCode) {
-        console.log('DEBUG: Auth code detected, letting request pass to:', request.nextUrl.pathname)
+    // 1. Si tiene código de auth pero no estamos en el callback, redirigimos nosotros al callback
+    // Esto arregla el problema cuando Supabase nos manda a la raíz / en vez de a /auth/callback
+    if (hasAuthCode && !isAuthPath) {
+        console.log('DEBUG: Auth code detected on WRONG path. Redirecting to /auth/callback')
+        const url = request.nextUrl.clone()
+        url.pathname = '/auth/callback'
+        return NextResponse.redirect(url)
+    }
+
+    if (hasAuthCode && isAuthPath) {
+        console.log('DEBUG: Auth code detected on CORRECT path. Letting it pass.')
         return supabaseResponse
     }
+
 
     // 2. Si no hay usuario y no es ruta pública -> login
     if (!user && !isLoginPath && !isAuthPath) {
