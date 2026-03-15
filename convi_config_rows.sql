@@ -1,0 +1,1 @@
+INSERT INTO "public"."convi_config" ("id", "created_at", "trimestre1_inicio", "trimestre1_fin", "trimestre2_inicio", "trimestre2_fin", "trimestre3_inicio", "trimestre3_fin", "email_convivencia") VALUES ('1', '2026-03-12 12:43:08.722757+01', '2025-09-15', '2025-12-31', '2026-01-01', '2026-03-31', '2026-04-01', '2026-06-30', 'oscarborras@iesjulioverne.es');

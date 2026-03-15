@@ -34,11 +34,18 @@ export async function updateSession(request: NextRequest) {
         data: { user },
     } = await supabase.auth.getUser()
 
+    console.log('DEBUG MIDDLEWARE:', { 
+        path: request.nextUrl.pathname, 
+        hasUser: !!user, 
+        userId: user?.id 
+    })
+
     const isLoginPath = request.nextUrl.pathname.startsWith('/login')
     const isAuthPath = request.nextUrl.pathname.startsWith('/auth')
 
     // 1. Si no hay usuario y no es ruta pública -> login
     if (!user && !isLoginPath && !isAuthPath) {
+        console.log('DEBUG: No user found, redirecting to login')
         const url = request.nextUrl.clone()
         url.pathname = '/login'
         return NextResponse.redirect(url)
@@ -47,7 +54,7 @@ export async function updateSession(request: NextRequest) {
     // 2. Si hay usuario, verificar rol excepto en rutas de autenticación del sistema
     if (user && !isAuthPath) {
         // Consultar el perfil del usuario utilizando la tabla user_roles y perfiles
-        const { data: roleData } = await supabase
+        const { data: roleData, error: roleError } = await supabase
             .from('user_roles')
             .select('perfiles(nombre)')
             .eq('user_id', user.id)
@@ -55,6 +62,8 @@ export async function updateSession(request: NextRequest) {
 
         const roleName = (roleData?.perfiles as any)?.nombre
         const isAuthorized = roleName === 'Directiva'
+
+        console.log('DEBUG: Role check', { roleName, isAuthorized, roleError })
 
         // Caso: Intentando acceder al login estando ya autenticado
         if (isLoginPath) {
@@ -71,13 +80,12 @@ export async function updateSession(request: NextRequest) {
         if (!isAuthorized) {
             const url = request.nextUrl.clone()
             url.pathname = '/login'
-            url.searchParams.set('errorMessage', 'Usuario o contraseña no válidos.')
+            url.searchParams.set('errorMessage', 'Tu cuenta de Google no tiene permisos de acceso. Contacta con el administrador.')
 
-            // Opcional: Podríamos forzar un logout aquí para mayor limpieza, 
-            // pero el redireccionamiento con el mensaje es lo solicitado.
             return NextResponse.redirect(url)
         }
     }
 
     return supabaseResponse
 }
+
