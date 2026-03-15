@@ -42,14 +42,16 @@ export async function updateSession(request: NextRequest) {
 
     const isLoginPath = request.nextUrl.pathname.startsWith('/login')
     const isAuthPath = request.nextUrl.pathname.startsWith('/auth')
+    const hasAuthCode = request.nextUrl.searchParams.has('code')
 
-    // 1. Si no hay usuario y no es ruta pública -> login
-    if (!user && !isLoginPath && !isAuthPath) {
-        console.log('DEBUG: No user found, redirecting to login')
+    // 1. Si no hay usuario, no es ruta pública y NO tiene código de auth -> login
+    if (!user && !isLoginPath && !isAuthPath && !hasAuthCode) {
+        console.log('DEBUG: No user found and no auth code, redirecting to login')
         const url = request.nextUrl.clone()
         url.pathname = '/login'
         return NextResponse.redirect(url)
     }
+
 
     // 2. Si hay usuario, verificar rol excepto en rutas de autenticación del sistema
     if (user && !isAuthPath) {
