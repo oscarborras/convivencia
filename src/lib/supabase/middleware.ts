@@ -37,7 +37,8 @@ export async function updateSession(request: NextRequest) {
     console.log('DEBUG MIDDLEWARE:', { 
         path: request.nextUrl.pathname, 
         hasUser: !!user, 
-        userId: user?.id 
+        userId: user?.id,
+        cookiesFound: request.cookies.getAll().map(c => c.name)
     })
 
     const isLoginPath = request.nextUrl.pathname.startsWith('/login')
