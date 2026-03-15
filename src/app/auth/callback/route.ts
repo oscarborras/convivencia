@@ -12,12 +12,15 @@ export async function GET(request: Request) {
 
     if (code) {
         const supabase = await createClient()
-        const { error } = await supabase.auth.exchangeCodeForSession(code)
+        const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
         if (!error) {
+            console.log('DEBUG CALLBACK: Session established for user', data.user?.email)
             return NextResponse.redirect(`${siteUrl}${next}`)
         }
+        console.error('DEBUG CALLBACK ERROR:', error)
     }
+
 
     // En caso de error, redirigir al login con mensaje de error
     return NextResponse.redirect(
