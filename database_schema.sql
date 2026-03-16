@@ -130,3 +130,21 @@ INSERT INTO convi_opt_graves (conducta, orden) VALUES
 ('Incumplimiento de corrección impuesta', 120),
 ('Reiteración de conductas contrarias a las normas de convivencia', 130),
 ('Salida del centro sin autorización (actuación perjudicial para la Comunidad)', 140);
+
+-- Tabla para exclusión de notificaciones a tutores
+CREATE TABLE IF NOT EXISTS convi_notificaciones (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  alumno_id UUID NOT NULL REFERENCES alumnos(id) ON DELETE CASCADE,
+  tutor_indice INTEGER NOT NULL CHECK (tutor_indice IN (1, 2)),
+  tutor_nombre TEXT,
+  email TEXT,
+  telefono TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  UNIQUE(alumno_id, tutor_indice)
+);
+
+ALTER TABLE convi_notificaciones ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir select" ON convi_notificaciones FOR SELECT TO public USING (true);
+CREATE POLICY "Permitir insert" ON convi_notificaciones FOR INSERT TO public WITH CHECK (true);
+CREATE POLICY "Permitir delete" ON convi_notificaciones FOR DELETE TO public USING (true);
+

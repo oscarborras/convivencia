@@ -1,6 +1,6 @@
 'use client'
 
-import { Shield, LayoutDashboard, FileText, Menu, LogOut, Clock, X, Upload, GraduationCap, Settings, History, BarChart3 } from 'lucide-react'
+import { Shield, LayoutDashboard, FileText, Menu, LogOut, Clock, X, Upload, GraduationCap, Settings, History, BarChart3, BellOff } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
@@ -96,8 +96,13 @@ export default function Sidebar({ userEmail }: SidebarProps) {
                     label: 'Configuración',
                     icon: Settings,
                     active: pathname === '/ajustes'
+                },
+                {
+                    href: '/notificaciones',
+                    label: 'Notificaciones',
+                    icon: BellOff,
+                    active: pathname === '/notificaciones'
                 }
-
             ]
         }
     ]
@@ -192,7 +197,7 @@ export default function Sidebar({ userEmail }: SidebarProps) {
                             Cerrar sesión
                         </button>
                     </form>
-                    <span className="block text-center text-[11px] font-semibold text-slate-400 dark:text-slate-500 mt-1 uppercase tracking-wider">v.1.1.0</span>
+                    <span className="block text-center text-[11px] font-semibold text-slate-400 dark:text-slate-500 mt-1 uppercase tracking-wider">v.1.2.0</span>
                 </div>
             </aside>
         </>
