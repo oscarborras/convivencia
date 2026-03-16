@@ -339,7 +339,7 @@ export default function RetrasosControlPage() {
                             setSearchTerm(e.target.value)
                             setPage(1)
                         }}
-                        className="block w-full pl-11 pr-4 py-2 bg-white border border-gray-200 rounded-2xl leading-5 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all text-gray-700 shadow-sm"
+                        className="block w-full pl-11 pr-4 py-3.5 bg-white border border-gray-200 rounded-2xl leading-5 focus:outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 transition-all text-gray-700 shadow-sm"
                     />
                 </div>
 

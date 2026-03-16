@@ -52,17 +52,21 @@ export async function updateSession(request: NextRequest) {
 
     // 3. Si hay sesión, verificar rol y redirecciones inteligentes
     if (user && !isAuthPath) {
-        // Consultar el perfil del usuario utilizando la tabla user_roles y perfiles
-        const { data: roleData, error: roleError } = await supabase
+        // Consultar los perfiles del usuario
+        const { data: rolesData, error: roleError } = await supabase
             .from('user_roles')
-            .select('perfiles(nombre)')
+            .select('perfil_id, perfiles(nombre)')
             .eq('user_id', user.id)
-            .single()
 
-        const roleName = (roleData?.perfiles as any)?.nombre
-        const isAuthorized = roleName === 'Directiva'
+        const roles = rolesData || []
+        const isAuthorized = roles.some(r => 
+            r.perfil_id === 1 || 
+            (r.perfiles as any)?.nombre === 'Admin' || 
+            (r.perfiles as any)?.nombre === 'Directiva'
+        )
 
-        console.log('DEBUG: Role check', { roleName, isAuthorized, roleError })
+        console.log('DEBUG: Role check', { roles, isAuthorized, roleError })
+
 
         // Caso: Intentando acceder al login estando ya autenticado
         if (isLoginPath) {
