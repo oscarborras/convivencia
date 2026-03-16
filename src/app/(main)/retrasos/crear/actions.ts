@@ -22,7 +22,7 @@ export async function createRetraso(formData: FormData) {
             .select('profesor')
             .eq('email', user.email)
             .maybeSingle();
-        
+
         if (profData?.profesor) {
             registradoPor = profData.profesor;
         }
@@ -86,7 +86,7 @@ export async function createRetraso(formData: FormData) {
     const emailsUnicos = [...new Set(destinatarios.filter(Boolean))];
 
     let emailsParam = '';
-    
+
     if (emailsUnicos.length > 0 && alumnoData) {
         // Ejecutamos en segundo plano (sin await para no bloquear la respuesta) o con await si queremos asegurar el envío
         // Lo dejamos con await para registrar posibles errores en el log del servidor
@@ -128,13 +128,15 @@ export async function createRetraso(formData: FormData) {
                         <td style="padding: 10px; border-bottom: 1px solid #eee;">${fechaFormateada}</td>
                     </tr>
                 </table>
+                <p>Se le informa que la reiteración de esta conducta puede llevar acarreada una SANCIÓN.</p>
+                <p>Para más información contacte con la Jefatura de Estudios o Dirección del instituto (directiva@iesjulioverne.es)</p>
                 <p style="margin-top: 30px; font-size: 12px; color: #64748b; text-align: center;">
-                    Este es un mensaje automático generado por el sistema de convivencia.
+                    Este es un mensaje automático generado por el sistema de convivencia. No responda al mismo pues está enviado desde una cuenta desatendida
                 </p>
             </div>
         `;
 
-        const sendPromises = emailsUnicos.map(emailDestino => 
+        const sendPromises = emailsUnicos.map(emailDestino =>
             sendEmail({
                 to: emailDestino,
                 subject: `📌 Aviso de Retraso - ${alumnoData.alumno}`,

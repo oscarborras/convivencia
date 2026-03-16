@@ -34,7 +34,7 @@ export async function createParte(formData: FormData) {
             .select('profesor')
             .eq('email', user.email)
             .maybeSingle();
-        
+
         if (profData?.profesor) {
             registradoPor = profData.profesor;
         }
@@ -60,7 +60,7 @@ export async function createParte(formData: FormData) {
     }
 
     // --- ENVIAR NOTIFICACIÓN POR EMAIL ---
-    let fechaFormateada = new Date().toLocaleString('es-ES', { 
+    let fechaFormateada = new Date().toLocaleString('es-ES', {
         timeZone: 'Europe/Madrid',
         dateStyle: 'medium',
         timeStyle: 'short'
@@ -72,7 +72,7 @@ export async function createParte(formData: FormData) {
         .select('alumno, unidad, tutor1_email, tutor2_email')
         .eq('id', parteData.alumno_id)
         .single();
-    
+
     let emailTutorCurso = null;
     if (alumnoData?.unidad) {
         const { data: cursoData } = await supabase
@@ -82,7 +82,7 @@ export async function createParte(formData: FormData) {
             .single();
         emailTutorCurso = cursoData?.email_tutor;
     }
-    
+
     const { data: profesorData } = await supabase
         .from('profesores')
         .select('profesor')
@@ -108,7 +108,7 @@ export async function createParte(formData: FormData) {
     if (emailsUnicos.length > 0 && alumnoData) {
         const obsTexto = parteData.observaciones ? parteData.observaciones : 'Ninguna anotación';
         const expulsionTexto = parteData.genera_expulsion ? 'Sí' : 'No';
-        
+
         let detalleConductas = '';
         if (conductas_contrarias.length > 0) {
             detalleConductas += '<strong>Conductas Contrarias:</strong><ul>';
@@ -157,13 +157,14 @@ export async function createParte(formData: FormData) {
                         <td style="padding: 10px; border-bottom: 1px solid #eee;">Día ${parteData.fecha} en la hora: ${parteData.hora}</td>
                     </tr>
                 </table>
+                <p>Para más información contacte con la Jefatura de Estudios o Dirección del instituto (directiva@iesjulioverne.es)</p>
                 <p style="margin-top: 30px; font-size: 12px; color: #64748b; text-align: center;">
-                    Este es un mensaje automático generado por el sistema de convivencia.
+                    Este es un mensaje automático generado por el sistema de convivencia. No responda al mismo pues está enviado desde una cuenta desatendida
                 </p>
             </div>
         `;
 
-        const sendPromises = emailsUnicos.map(emailDestino => 
+        const sendPromises = emailsUnicos.map(emailDestino =>
             sendEmail({
                 to: emailDestino,
                 subject: `🚨 Aviso de Parte Disciplinario - ${alumnoData.alumno}`,
@@ -171,7 +172,7 @@ export async function createParte(formData: FormData) {
                 textBody: `Aviso de Parte Registrado\n\nAlumno/a: ${alumnoData.alumno}\nUnidad: ${alumnoData.unidad || 'N/A'}\nProfesor/a: ${profesorData?.profesor || 'N/A'}\nExpulsión: ${expulsionTexto}\nObservaciones: ${obsTexto}`
             })
         );
-        
+
         const results = await Promise.all(sendPromises);
 
         const fallos = results.filter(r => !r.success);
@@ -189,7 +190,7 @@ export async function createParte(formData: FormData) {
     }
 
     revalidatePath('/dashboard')
-    
+
     // Si obtenemos un alumno, pasamos el nombre, si no un genérico
     const nombreParam = alumnoData?.alumno ? encodeURIComponent(alumnoData.alumno) : 'Estudiante';
     redirect(`/partes/crear/exito?alumno=${nombreParam}&emails=${emailsParam}`)
