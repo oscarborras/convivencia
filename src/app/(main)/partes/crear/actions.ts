@@ -95,10 +95,17 @@ export async function createParte(formData: FormData) {
         .single();
 
     const emailConvivencia = configData?.email_convivencia;
+    const { data: notificacionesBloqueadas } = await supabase
+        .from('convi_notificaciones')
+        .select('email')
+        .eq('alumno_id', parteData.alumno_id);
+
+    const emailsBloqueados = (notificacionesBloqueadas || []).map((n) => n.email);
+
     const destinatarios: string[] = [];
     if (emailConvivencia) destinatarios.push(emailConvivencia);
-    if (alumnoData?.tutor1_email) destinatarios.push(alumnoData.tutor1_email);
-    if (alumnoData?.tutor2_email) destinatarios.push(alumnoData.tutor2_email);
+    if (alumnoData?.tutor1_email && !emailsBloqueados.includes(alumnoData.tutor1_email)) destinatarios.push(alumnoData.tutor1_email);
+    if (alumnoData?.tutor2_email && !emailsBloqueados.includes(alumnoData.tutor2_email)) destinatarios.push(alumnoData.tutor2_email);
     if (emailTutorCurso) destinatarios.push(emailTutorCurso);
 
     const emailsUnicos = [...new Set(destinatarios.filter(Boolean))];
