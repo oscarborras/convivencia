@@ -140,7 +140,7 @@ export default async function RetrasosDashboardPage(props: { searchParams: Promi
                         className="inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-2xl font-semibold hover:bg-blue-700 transition-all shadow-lg shadow-blue-100"
                     >
                         <Clock className="w-5 h-5" />
-                        Nuevo Registro
+                        Nuevo Retraso
                     </a>
                 </div>
             </div>
