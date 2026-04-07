@@ -10,6 +10,7 @@ export default async function ImportarAlumnosPage() {
     const { count } = await supabase
         .from('alumnos')
         .select('*', { count: 'exact', head: true })
+        .is('estado_matricula', null)
 
     const { data: lastAlumno } = await supabase
         .from('alumnos')
@@ -39,9 +40,11 @@ export default async function ImportarAlumnosPage() {
                         <h4 className="font-bold mb-1">Instrucciones fichero CSV</h4>
                         <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
                             1.- Desde Séneca exporta el listado de alumnos en formato excel: Exportar de: Alumnado --&gt; Alumnado del centro
-                            <br />2.- Abre el archivo excel y deja solo las columnas "Alumno", "Curso" y "Sexo" (en ese orden). Elimina las filas de cabecera.
-                            <br />3.- Guarda el archivo como CSV. Debe estar en codificación UTF-8.
-                            <br />4.- Sube el archivo CSV a la aplicación.
+                            <br />2.- Pulsa en el icono "Muestra los alumnos que pasan los filtros" de la parte superior derecha, con el filtro Curso vacío.
+                            <br />3.- Pulsa en el icono "exportar datos" de la parte superior y selecciona comoformato "Hoja Microsoft Excel".
+                            <br />4.- Abre el archivo xls con Libreoffice o Microsoft Excel y elimina las 4 primeras filas para que la primera sea la cabecera que indica que es cada columna.
+                            <br />5.- Guarda el archivo como CSV, seleccionando codificación Unicode (UTF-8), delimitador de campo punto y coma (;) y delimitador de cadena comillas dobles (").
+                            <br />6.- Sube el archivo CSV a la aplicación.
                         </p>
                     </div>
                 </div>

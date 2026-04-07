@@ -78,9 +78,9 @@ export default function ImportClient({ initialCount, lastUpdate }: { initialCoun
             // Normalize header names: remove quotes, remove accents, lowercase, trim
             const normalize = (s: string) => {
                 return s.replace(/^["']|["']$/g, '')
-                        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-                        .toLowerCase()
-                        .trim()
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                    .toLowerCase()
+                    .trim()
             }
             const headerIndex = new Map<string, number>()
             headers.forEach((h, idx) => {
@@ -203,7 +203,7 @@ export default function ImportClient({ initialCount, lastUpdate }: { initialCoun
                         <div>
                             <p className="text-sm font-medium text-primary-brand">Formato de archivo requerido</p>
                             <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                                Sube un archivo <strong className="font-semibold">CSV</strong>. El sistema buscará cabeceras como "Alumno/a", "Unidad", "Primer apellido Primer tutor", etc. Se aceptan ficheros separados por Punto y Coma o por Comas.
+                                Sube un archivo <strong className="font-semibold">CSV</strong>, como se indica en las instrucciones más abajo.
                                 <br /><br />
                                 <strong className="font-semibold">Se sincronizarán los datos para alumnos y actualizarán los campos que falten.</strong>
                             </p>
@@ -295,8 +295,8 @@ export default function ImportClient({ initialCount, lastUpdate }: { initialCoun
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className={`px-2 py-1 rounded font-medium ${row.sexo.toLowerCase().startsWith('h') ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600' :
-                                                    row.sexo.toLowerCase().startsWith('m') || row.sexo.toLowerCase().startsWith('f') ? 'bg-pink-100 dark:bg-pink-900/30 text-pink-600' :
-                                                        'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
+                                                row.sexo.toLowerCase().startsWith('m') || row.sexo.toLowerCase().startsWith('f') ? 'bg-pink-100 dark:bg-pink-900/30 text-pink-600' :
+                                                    'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
                                                 }`}>
                                                 {row.sexo}
                                             </span>
