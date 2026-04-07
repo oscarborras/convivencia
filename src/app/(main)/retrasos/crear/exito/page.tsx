@@ -3,10 +3,9 @@ import ExitoClient from './ExitoClient'
 export default async function ExitoRetrasoPage({
     searchParams,
 }: {
-    searchParams: { alumno?: string; curso?: string; fecha?: string; emails?: string }
+    searchParams: { alumno?: string; curso?: string; fecha?: string; emails?: string; obs?: string }
 }) {
-    // Next 14/15 searchParams is a promise or a plain object depending on the version,
-    // Safest access for dynamic server-side params:
+    // Next 14/15 searchParams is a promise o plain object
     const sp = await searchParams;
     
     return (
@@ -15,6 +14,7 @@ export default async function ExitoRetrasoPage({
             curso={sp.curso || ''} 
             fecha={sp.fecha || ''} 
             emails={sp.emails || ''}
+            obs={sp.obs || ''}
         />
     )
 }

@@ -3,13 +3,30 @@
 import { Printer, ArrowLeft, CheckCircle2, XCircle } from 'lucide-react'
 import Link from 'next/link'
 
-export default function ExitoClient({ alumno, curso, fecha, emails }: { alumno: string, curso: string, fecha: string, emails?: string }) {
+// Mapa de abreviaturas de mes en español a número de mes
+const MESES_ES: Record<string, string> = {
+    ene: '01', feb: '02', mar: '03', abr: '04', may: '05', jun: '06',
+    jul: '07', ago: '08', sep: '09', oct: '10', nov: '11', dic: '12'
+};
+
+// Convierte la fecha del servidor (ej: "7 abr 2026, 13:00") a "DD/MM/AAAA" y "HH:MM"
+function parseFecha(fecha: string): { fechaDia: string; hora: string } {
+    const [datePart, timePart] = fecha.split(', ');
+    const parts = datePart?.trim().split(' ') || [];
+    const day = (parts[0] || '').padStart(2, '0');
+    const month = MESES_ES[parts[1]?.toLowerCase() || ''] || parts[1] || '';
+    const year = parts[2] || '';
+    return { fechaDia: `${day}/${month}/${year}`, hora: timePart || '' };
+}
+
+export default function ExitoClient({ alumno, curso, fecha, emails, obs }: { alumno: string, curso: string, fecha: string, emails?: string, obs?: string }) {
     let emailStatus: { email: string, ok: boolean }[] = [];
     if (emails) {
         try {
             emailStatus = JSON.parse(decodeURIComponent(emails));
-        } catch(e) {}
+        } catch (e) { }
     }
+    const { fechaDia, hora } = parseFecha(fecha);
     return (
         <div className="max-w-3xl mx-auto min-h-[60vh] flex flex-col items-center justify-center p-6 print:p-0 print:m-0 print:min-h-0 print:block">
             {/* VISTA EN PANTALLA (No imprime) */}
@@ -75,43 +92,67 @@ export default function ExitoClient({ alumno, curso, fecha, emails }: { alumno: 
                 </Link>
             </div>
 
+            {/* Regla CSS para márgenes de impresión */}
+            <style>{`@page { margin: 1cm 1cm 1cm 1cm; }`}</style>
+
             {/* VISTA DE IMPRESIÓN (Oculta en pantalla, visible solo al imprimir) */}
-            <div className="hidden print:block w-full max-w-3xl mx-auto p-12 print:p-0 h-auto break-inside-avoid">
-                <div className="text-center mb-12 border-b-2 border-slate-900 pb-8">
-                    <h1 className="text-4xl font-black text-slate-900 uppercase tracking-widest mb-2" style={{ fontFamily: 'var(--font-display, sans-serif)' }}>
-                        Convivencia
-                    </h1>
-                    <h2 className="text-lg font-bold text-slate-500 uppercase tracking-[0.15em]">
-                        IES Julio Verne - Gestión Escolar
-                    </h2>
-                </div>
-
-                <div className="space-y-8 mt-12 px-4">
-                    <h3 className="text-3xl font-bold text-slate-900 text-center mb-12 underline underline-offset-8">
-                        Comprobante de Incorporación al Centro
-                    </h3>
-
-                    <p className="text-xl leading-loose text-slate-900 text-justify">
-                        Por medio del presente se acredita que el alumno/a <strong>{alumno}</strong>
-                        {curso && <span> matriculado/a en el grupo <strong>{curso}</strong></span>}, 
-                        se ha presentado en estas dependencias para registrar su entrada en el centro, a fecha y hora: <span className="font-bold whitespace-nowrap">{fecha}</span>.
-                    </p>
-
-                    <p className="text-xl leading-loose text-slate-900 text-justify mt-8">
-                        Su incorporación con retraso ha quedado oficialmente documentada en el sistema. 
-                        Con el porte de este documento provisional, el profesorado podrá permitir 
-                        su incorporación inmediata al aula o actividades lectivas correspondientes, salvo indicación contraria por Normativa de Centro.
-                    </p>
-                </div>
-
-                <div className="mt-32 pt-12 grid grid-cols-2 gap-16 text-center">
+            <div className="hidden print:block w-full max-w-[21cm] mx-auto bg-white h-[14.8cm] relative font-serif">
+                {/* Cabecera */}
+                <div className="flex justify-center items-start mb-4">
                     <div>
-                        <div className="h-0 border-t-2 border-slate-800 w-64 mx-auto border-dashed"></div>
-                        <p className="mt-4 font-bold text-slate-600 text-lg uppercase">Sello del Centro</p>
+                        <h1 className="text-base font-bold uppercase tracking-widest text-slate-900 border-b-2 border-slate-900 pb-1 text-center">
+                            REGISTRO DE ENTRADA TARDE AL CENTRO
+                        </h1>
                     </div>
-                    <div>
-                        <div className="h-0 border-t-2 border-slate-800 w-64 mx-auto border-dashed"></div>
-                        <p className="mt-4 font-bold text-slate-600 text-lg uppercase">Firma o Visto Bueno</p>
+                </div>
+
+                {/* Cuerpo del Justificante */}
+                <div className="space-y-10 text-lg text-slate-900 mt-6 px-4">
+                    <div className="flex items-end gap-3 leading-tight">
+                        <span className="whitespace-nowrap pb-1">El alumno/a:</span>
+                        <div className="flex-1 border-b border-slate-400 font-bold px-4 text-xl pb-1">
+                            {alumno}
+                        </div>
+                    </div>
+
+                    <div className="flex flex-wrap items-end gap-y-8 gap-x-4 leading-tight">
+                        <div className="flex items-end gap-3">
+                            <span className="whitespace-nowrap pb-1">del grupo:</span>
+                            <div className="min-w-[140px] border-b border-slate-400 font-bold px-2 text-center pb-1">
+                                {curso || '—'}
+                            </div>
+                        </div>
+
+                        <div className="flex items-end gap-3">
+                            <span className="whitespace-nowrap pb-1">ha llegado al instituto el día:</span>
+                            <div className="min-w-[180px] border-b border-slate-400 font-bold px-2 text-center pb-1">
+                                {fechaDia}
+                            </div>
+                        </div>
+
+                        <div className="flex items-end gap-3">
+                            <span className="whitespace-nowrap pb-1">a las:</span>
+                            <div className="min-w-[100px] border-b border-slate-400 font-bold px-2 text-center pb-1">
+                                {hora}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="mt-10">
+                        <p className="text-sm font-bold text-slate-700 mb-4 uppercase tracking-wider">
+                            Observaciones del equipo directivo:
+                        </p>
+                        {obs ? (
+                            <p className="text-base text-slate-800 leading-relaxed border-b border-slate-300 pb-2">
+                                {decodeURIComponent(obs)}
+                            </p>
+                        ) : (
+                            <div className="space-y-10">
+                                <div className="border-b border-slate-300 w-full"></div>
+                                <div className="border-b border-slate-300 w-full"></div>
+                                <div className="border-b border-slate-300 w-full"></div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

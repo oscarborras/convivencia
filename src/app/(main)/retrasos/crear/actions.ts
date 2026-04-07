@@ -175,6 +175,7 @@ export async function createRetraso(formData: FormData) {
     const nombreParam = alumnoData?.alumno ? encodeURIComponent(alumnoData.alumno) : 'Estudiante';
     const cursoParam = alumnoData?.unidad ? encodeURIComponent(alumnoData.unidad) : '';
     const fechaParam = encodeURIComponent(fechaFormateada);
+    const obsParam = observaciones ? encodeURIComponent(observaciones) : '';
 
-    redirect(`/retrasos/crear/exito?alumno=${nombreParam}&curso=${cursoParam}&fecha=${fechaParam}&emails=${emailsParam}`);
+    redirect(`/retrasos/crear/exito?alumno=${nombreParam}&curso=${cursoParam}&fecha=${fechaParam}&emails=${emailsParam}&obs=${obsParam}`);
 }
