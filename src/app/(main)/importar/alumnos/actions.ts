@@ -78,14 +78,14 @@ export async function insertAlumnos(payload: {
             return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/\s+/g, ' ').trim();
         };
 
-        // Creamos un diccionario con la estructura "NombreAlumno-Curso" para buscar rápido su ID
-        const existingMap = new Map((existingAlumnos || []).map(a => [`${normalizeKey(a.alumno)}-${normalizeKey(a.unidad)}`, a.id]));
-        
+        // Creamos un diccionario con el nombre del alumno para buscar rápido su ID
+        const existingMap = new Map((existingAlumnos || []).map(a => [normalizeKey(a.alumno), a.id]));
+
         const newAlumnos: any[] = [];
         const updatePromises: any[] = [];
 
         for (const data of alumnosToProcess) {
-            const key = `${normalizeKey(data.alumno)}-${normalizeKey(data.unidad)}`;
+            const key = normalizeKey(data.alumno);
             const existingId = existingMap.get(key);
             
             if (existingId) {
@@ -95,7 +95,7 @@ export async function insertAlumnos(payload: {
                 );
             } else {
                 newAlumnos.push(data);
-                // Si el alumno se repite en el propio CSV, lo ignoramos para insertarlo dos veces
+                // Si el alumno se repite en el propio CSV, lo ignoramos para no insertarlo dos veces
                 existingMap.set(key, 'temp-id');
             }
         }
