@@ -14,12 +14,10 @@ interface PartesGravityChartProps {
         value: number
         color: string
     }[]
-    total?: number
 }
 
-export default function PartesGravityChart({ data, total: totalProp }: PartesGravityChartProps) {
-    const total = totalProp ?? data.reduce((acc, curr) => acc + curr.value, 0)
-    const sum = data.reduce((acc, curr) => acc + curr.value, 0)
+export default function PartesGravityChart({ data }: PartesGravityChartProps) {
+    const total = data.reduce((acc, curr) => acc + curr.value, 0)
 
     if (total === 0) {
         return (
@@ -64,7 +62,7 @@ export default function PartesGravityChart({ data, total: totalProp }: PartesGra
             {/* Leyenda personalizada estilo la captura */}
             <div className="mt-6 space-y-3 px-2">
                 {data.map((item, index) => {
-                    const percentage = sum > 0 ? Math.round((item.value / sum) * 100) : 0
+                    const percentage = total > 0 ? Math.round((item.value / total) * 100) : 0
                     return (
                         <div key={index} className="flex items-center justify-between group">
                             <div className="flex items-center gap-3">
