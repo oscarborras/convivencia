@@ -14,10 +14,11 @@ interface PartesGravityChartProps {
         value: number
         color: string
     }[]
+    total?: number
 }
 
-export default function PartesGravityChart({ data }: PartesGravityChartProps) {
-    const total = data.reduce((acc, curr) => acc + curr.value, 0)
+export default function PartesGravityChart({ data, total: totalProp }: PartesGravityChartProps) {
+    const total = totalProp ?? data.reduce((acc, curr) => acc + curr.value, 0)
 
     if (total === 0) {
         return (

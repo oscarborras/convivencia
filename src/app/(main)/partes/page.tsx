@@ -79,6 +79,8 @@ export default async function PartesDashboardPage(props: { searchParams: Promise
     // Procesar datos para gráficos y estadísticas
     const unidadCounts: Record<string, number> = {}
     const profCounts: Record<string, { name: string, leves: number, graves: number, total: number }> = {}
+    let levesCount = 0
+    let gravesCount = 0
 
     partesPeriodo?.forEach((r: any) => {
         // Unidades
@@ -94,8 +96,8 @@ export default async function PartesDashboardPage(props: { searchParams: Promise
         const isLeve = r.conductas_contrarias && r.conductas_contrarias.length > 0 && JSON.stringify(r.conductas_contrarias) !== '[]' && JSON.stringify(r.conductas_contrarias) !== '{}'
         const isGrave = r.conductas_graves && r.conductas_graves.length > 0 && JSON.stringify(r.conductas_graves) !== '[]' && JSON.stringify(r.conductas_graves) !== '{}'
 
-        if (isLeve) profCounts[profName].leves++
-        if (isGrave) profCounts[profName].graves++
+        if (isLeve) { profCounts[profName].leves++; levesCount++ }
+        if (isGrave) { profCounts[profName].graves++; gravesCount++ }
         profCounts[profName].total++
     })
 
@@ -109,9 +111,10 @@ export default async function PartesDashboardPage(props: { searchParams: Promise
 
 
     const gravityChartData = [
-        { name: 'Leves', value: totalPartesLeves || 0, color: '#10b981' },
-        { name: 'Graves', value: totalPartesGraves || 0, color: '#f59e0b' }
+        { name: 'Leves', value: levesCount, color: '#10b981' },
+        { name: 'Graves', value: gravesCount, color: '#f59e0b' }
     ]
+    const totalPartesPeriodo = partesPeriodo?.length || 0
 
     return (
         <div className="space-y-8 pb-12">
@@ -215,7 +218,7 @@ export default async function PartesDashboardPage(props: { searchParams: Promise
                         </div>
                     </div>
                     <div className="flex-1 min-h-[400px]">
-                        <PartesGravityChart data={gravityChartData} />
+                        <PartesGravityChart data={gravityChartData} total={totalPartesPeriodo} />
                     </div>
                 </div>
             </div>
