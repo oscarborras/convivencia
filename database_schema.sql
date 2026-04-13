@@ -10,7 +10,7 @@ CREATE TYPE hora_clase AS ENUM ('1ª', '2ª', '3ª', 'Recreo', '4ª', '5ª', '6�
 CREATE TABLE IF NOT EXISTS convi_partes (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   fecha DATE NOT NULL DEFAULT CURRENT_DATE,
-  hora hora_clase NOT NULL,
+  hora hora_clase,
   
   alumno_id UUID NOT NULL REFERENCES alumnos(id) ON DELETE CASCADE,
   profesor_id UUID NOT NULL REFERENCES profesores(id) ON DELETE CASCADE,

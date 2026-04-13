@@ -118,13 +118,14 @@ export default async function NuevoPartePage({
                             />
                         </div>
                         <div>
-                            <label className="block text-xs font-bold text-gray-600 mb-1 ml-1 uppercase tracking-wider">Hora</label>
+                            <label className="block text-xs font-bold text-gray-600 mb-1 ml-1 uppercase tracking-wider">
+                                Hora <span className="normal-case font-normal text-gray-400">(Opcional)</span>
+                            </label>
                             <select
                                 name="hora"
-                                required
                                 className="w-full px-4 py-3 bg-gray-50 border-2 border-transparent rounded-2xl focus:outline-none focus:border-blue-500 focus:bg-white transition-all shadow-inner text-sm font-medium"
                             >
-                                <option value="">Seleccionar Hora...</option>
+                                <option value="">Sin especificar</option>
                                 {OPT_HORAS.map(h => (
                                     <option key={h} value={h}>{h}</option>
                                 ))}

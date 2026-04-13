@@ -42,7 +42,7 @@ export async function createParte(formData: FormData) {
 
     const parteData = {
         fecha: formData.get('fecha') as string,
-        hora: formData.get('hora') as string,
+        hora: (formData.get('hora') as string) || null,
         alumno_id: formData.get('alumno_id') as string,
         profesor_id: formData.get('profesor_id') as string,
         conductas_contrarias,
@@ -160,8 +160,8 @@ export async function createParte(formData: FormData) {
                         <td style="padding: 10px; border-bottom: 1px solid #eee;">${obsTexto}</td>
                     </tr>
                     <tr>
-                        <th style="padding: 10px; border-bottom: 1px solid #eee; background: #f8fafc;">Instante suceso:</th>
-                        <td style="padding: 10px; border-bottom: 1px solid #eee;">Día ${parteData.fecha} en la hora: ${parteData.hora}</td>
+                        <th style="padding: 10px; border-bottom: 1px solid #eee; background: #f8fafc; width: 30%;">Fecha y hora:</th>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">Día ${parteData.fecha} ${parteData.hora ? `en la hora: ${parteData.hora}` : '(Hora no especificada)'}</td>
                     </tr>
                 </table>
                 <p>Para más información contacte con la Jefatura de Estudios o Dirección del instituto (directiva@iesjulioverne.es)</p>
