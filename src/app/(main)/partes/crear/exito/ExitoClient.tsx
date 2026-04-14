@@ -4,7 +4,7 @@ import { ArrowLeft, CheckCircle2, ShieldAlert, XCircle } from 'lucide-react'
 import Link from 'next/link'
 
 export default function ExitoClient({ alumno, emails }: { alumno: string, emails?: string }) {
-    let emailStatus: { email: string, ok: boolean }[] = [];
+    let emailStatus: { email: string, label: string, ok: boolean }[] = [];
     if (emails) {
         try {
             emailStatus = JSON.parse(decodeURIComponent(emails));
@@ -36,9 +36,14 @@ export default function ExitoClient({ alumno, emails }: { alumno: string, emails
                                     ) : (
                                         <XCircle className="w-5 h-5 text-red-500 shrink-0" />
                                     )}
-                                    <span className={st.ok ? "text-gray-700 font-medium" : "text-gray-500 line-through truncate"}>
-                                        {st.email}
-                                    </span>
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] font-bold text-gray-400 uppercase leading-none mb-1">
+                                            {st.label}
+                                        </span>
+                                        <span className={st.ok ? "text-gray-700 font-medium truncate" : "text-gray-500 line-through truncate"}>
+                                            {st.email}
+                                        </span>
+                                    </div>
                                     {!st.ok && (
                                         <span className="text-xs text-red-600 bg-red-50 px-2 py-0.5 rounded-full font-bold ml-auto shrink-0">
                                             Error

@@ -102,18 +102,33 @@ export async function createParte(formData: FormData) {
 
     const emailsBloqueados = (notificacionesBloqueadas || []).map((n) => n.email);
 
-    const destinatarios: string[] = [];
-    if (emailConvivencia) destinatarios.push(emailConvivencia);
-    if (alumnoData?.tutor1_email && !emailsBloqueados.includes(alumnoData.tutor1_email)) destinatarios.push(alumnoData.tutor1_email);
-    if (alumnoData?.tutor2_email && !emailsBloqueados.includes(alumnoData.tutor2_email)) destinatarios.push(alumnoData.tutor2_email);
-    if (emailTutorCurso) destinatarios.push(emailTutorCurso);
-    if (profesorData?.email) destinatarios.push(profesorData.email);
+    const destinatarios: { email: string, label: string }[] = [];
+    if (emailConvivencia) destinatarios.push({ email: emailConvivencia, label: 'Convivencia' });
+    if (alumnoData?.tutor1_email && !emailsBloqueados.includes(alumnoData.tutor1_email)) {
+        destinatarios.push({ email: alumnoData.tutor1_email, label: 'Tutor 1' });
+    }
+    if (alumnoData?.tutor2_email && !emailsBloqueados.includes(alumnoData.tutor2_email)) {
+        destinatarios.push({ email: alumnoData.tutor2_email, label: 'Tutor 2' });
+    }
+    if (emailTutorCurso) destinatarios.push({ email: emailTutorCurso, label: 'Tutor Grupo' });
+    if (profesorData?.email) destinatarios.push({ email: profesorData.email, label: 'Profesor' });
 
-    const emailsUnicos = [...new Set(destinatarios.filter(Boolean))];
+    // Agrupamos por email para evitar duplicados, concatenando etiquetas si es necesario
+    const uniqueEmailsMap = new Map<string, string>();
+    destinatarios.filter(d => d.email).forEach(d => {
+        const existing = uniqueEmailsMap.get(d.email);
+        if (existing) {
+            uniqueEmailsMap.set(d.email, `${existing}, ${d.label}`);
+        } else {
+            uniqueEmailsMap.set(d.email, d.label);
+        }
+    });
+
+    const listadoFinal = Array.from(uniqueEmailsMap.entries()).map(([email, label]) => ({ email, label }));
 
     let emailsParam = '';
 
-    if (emailsUnicos.length > 0 && alumnoData) {
+    if (listadoFinal.length > 0 && alumnoData) {
         const obsTexto = parteData.observaciones ? parteData.observaciones : 'Ninguna anotación';
         const expulsionTexto = parteData.genera_expulsion ? 'Sí' : 'No';
 
@@ -172,9 +187,9 @@ export async function createParte(formData: FormData) {
             </div>
         `;
 
-        const sendPromises = emailsUnicos.map(emailDestino =>
+        const sendPromises = listadoFinal.map(dest =>
             sendEmail({
-                to: emailDestino,
+                to: dest.email,
                 subject: `🚨 Aviso de Parte Disciplinario - ${alumnoData.alumno}`,
                 htmlBody: htmlBody,
                 textBody: `Aviso de Parte Registrado\n\nAlumno/a: ${alumnoData.alumno}\nUnidad: ${alumnoData.unidad || 'N/A'}\nProfesor/a: ${profesorData?.profesor || 'N/A'}\nExpulsión: ${expulsionTexto}\nObservaciones: ${obsTexto}`
@@ -187,11 +202,12 @@ export async function createParte(formData: FormData) {
         if (fallos.length > 0) {
             console.error(`⚠️ Hubo errores al enviar a ${fallos.length} destinatarios.`, fallos.map(f => f.error));
         } else {
-            console.log('✅ Correos de parte individuales enviados correctamente a', emailsUnicos);
+            console.log('✅ Correos de parte individuales enviados correctamente');
         }
 
         const emailResultsInfo = results.map((r, i) => ({
-            email: emailsUnicos[i],
+            email: listadoFinal[i].email,
+            label: listadoFinal[i].label,
             ok: r.success
         }));
         emailsParam = encodeURIComponent(JSON.stringify(emailResultsInfo));
