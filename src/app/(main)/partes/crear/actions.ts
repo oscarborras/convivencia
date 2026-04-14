@@ -85,7 +85,7 @@ export async function createParte(formData: FormData) {
 
     const { data: profesorData } = await supabase
         .from('profesores')
-        .select('profesor')
+        .select('profesor, email')
         .eq('id', parteData.profesor_id)
         .single();
 
@@ -107,6 +107,7 @@ export async function createParte(formData: FormData) {
     if (alumnoData?.tutor1_email && !emailsBloqueados.includes(alumnoData.tutor1_email)) destinatarios.push(alumnoData.tutor1_email);
     if (alumnoData?.tutor2_email && !emailsBloqueados.includes(alumnoData.tutor2_email)) destinatarios.push(alumnoData.tutor2_email);
     if (emailTutorCurso) destinatarios.push(emailTutorCurso);
+    if (profesorData?.email) destinatarios.push(profesorData.email);
 
     const emailsUnicos = [...new Set(destinatarios.filter(Boolean))];
 
