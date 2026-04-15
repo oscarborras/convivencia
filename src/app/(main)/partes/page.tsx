@@ -174,7 +174,7 @@ export default async function PartesDashboardPage(props: { searchParams: Promise
                             <AlertTriangle className="w-6 h-6" />
                         </div>
                         <div>
-                            <p className="text-sm font-medium text-gray-500">Partes Leves</p>
+                            <p className="text-sm font-medium text-gray-500">Conductas Leves</p>
                             <p className="text-2xl font-bold">{totalPartesLeves || 0}</p>
                         </div>
                     </div>
@@ -186,7 +186,7 @@ export default async function PartesDashboardPage(props: { searchParams: Promise
                             <AlertOctagon className="w-6 h-6" />
                         </div>
                         <div>
-                            <p className="text-sm font-medium text-gray-500">Partes Graves</p>
+                            <p className="text-sm font-medium text-gray-500">Conductas Graves</p>
                             <p className="text-2xl font-bold">{totalPartesGraves || 0}</p>
                         </div>
                     </div>
@@ -207,7 +207,7 @@ export default async function PartesDashboardPage(props: { searchParams: Promise
                 <div className="lg:col-span-4 bg-white p-8 rounded-3xl shadow-sm border border-gray-100 flex flex-col h-full">
                     <div className="flex items-center justify-between mb-8">
                         <div>
-                            <h2 className="text-xl font-bold text-gray-900 tracking-tight">Tipos de Partes</h2>
+                            <h2 className="text-xl font-bold text-gray-900 tracking-tight">Tipos de Conductas</h2>
                             <p className="text-sm text-gray-500 font-medium">Distribución por Gravedad</p>
                         </div>
                         <div className="bg-emerald-50 p-2.5 rounded-2xl text-emerald-600">
