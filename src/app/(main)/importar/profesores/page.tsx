@@ -28,19 +28,20 @@ export default async function ImportarProfesoresPage() {
 
             <ImportClient initialCount={count || 0} lastUpdate={lastProfesor?.created_at || null} />
 
-            {/* Empty State Help Card */}
+            {/* Help Cards */}
             <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="p-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-start gap-4">
                     <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-blue-600">
                         <span className="material-symbols-outlined shrink-0 text-xl font-bold">Info</span>
                     </div>
                     <div>
-                        <h4 className="font-bold mb-1">Instrucciones fichero CSV</h4>
+                        <h4 className="font-bold mb-1">Cómo obtener el fichero CSV</h4>
                         <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
-                            1.- Prepara el listado de profesores en formato excel.
-                            <br />2.- Asegúrate de que tenga las columnas "Profesor", "Correo", "Puesto" y opcionalmente "fecha_cese" (en ese orden).
-                            <br />3.- Guarda el archivo como CSV. Debe estar en codificación UTF-8 y separado por comas o puntos y comas.
-                            <br />4.- Sube el archivo CSV a la aplicación.
+                            1.- Desde Séneca ir a Personal → Personal del Centro.<br />
+                            2.- Exportar datos como &quot;Hoja Microsoft Excel&quot;.<br />
+                            3.- Abre el archivo xls con Libreoffice o Microsoft Excel y elimina las 4 primeras filas para que la primera sea la cabecera que indica que es cada columna.<br />
+                            4.- Guarda el archivo como CSV, seleccionando codificación Unicode (UTF-8), delimitador de campo punto y coma (;) y delimitador de cadena comillas dobles (").<br />
+                            5.- Sube el archivo CSV a la aplicación.
                         </p>
                     </div>
                 </div>
@@ -49,9 +50,12 @@ export default async function ImportarProfesoresPage() {
                         <span className="material-symbols-outlined shrink-0 text-xl font-bold">warning</span>
                     </div>
                     <div>
-                        <h4 className="font-bold mb-1">Auto-actualización de Profesores</h4>
+                        <h4 className="font-bold mb-1">Qué hace el sistema</h4>
                         <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
-                            El sistema añadirá los profesores si no existen en la base de datos usando el correo electrónico o el nombre como identificador principal.
+                            1.- Actualiza los campos vacíos (puesto, fecha de alta, fecha de cese) de los profesores ya existentes, identificándolos por nombre. <br />
+                            2.- Si un profesor aparece varias veces en el CSV y su contrato anterior ha caducado, se actualiza con el contrato más reciente. <br />
+                            3.- Se insertan profesores nuevos.<br />
+                            4.- Solicita emails de los profesores sin email.
                         </p>
                     </div>
                 </div>
