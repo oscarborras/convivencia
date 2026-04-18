@@ -7,7 +7,11 @@ export const dynamic = 'force-dynamic'
 export default async function ImportarAlumnosPage() {
     const supabase = await createClient()
 
-    const { count } = await supabase
+    const { count: totalCount } = await supabase
+        .from('alumnos')
+        .select('*', { count: 'exact', head: true })
+
+    const { count: activeCount } = await supabase
         .from('alumnos')
         .select('*', { count: 'exact', head: true })
         .is('estado_matricula', null)
@@ -28,7 +32,7 @@ export default async function ImportarAlumnosPage() {
                 </p>
             </div>
 
-            <ImportClient initialCount={count || 0} lastUpdate={lastAlumno?.created_at || null} />
+            <ImportClient totalCount={totalCount || 0} activeCount={activeCount || 0} lastUpdate={lastAlumno?.created_at || null} />
 
             {/* Empty State Help Card */}
             <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">

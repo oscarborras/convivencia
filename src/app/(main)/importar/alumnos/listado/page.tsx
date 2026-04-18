@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { ArrowLeft, Users } from 'lucide-react'
 import PaginationControls from '@/components/ui/PaginationControls'
 import AlumnosFilters from './Filters'
+import AlumnosTable from './AlumnosTable'
 
 export const dynamic = 'force-dynamic'
 
@@ -29,7 +30,7 @@ export default async function ListadoAlumnosPage(props: {
     // Fetch with DB-level filters (non-text only)
     let query = supabase
         .from('alumnos')
-        .select('id, alumno, unidad, sexo, email_personal, edad_matricula')
+        .select('id, alumno, unidad, sexo, email_personal, edad_matricula, fecha_matricula, estado_matricula, primer_apellido, segundo_apellido, nombre, tutor1_primer_apellido, tutor1_segundo_apellido, tutor1_nombre, tutor1_email, tutor1_telefono, tutor1_sexo, tutor2_primer_apellido, tutor2_segundo_apellido, tutor2_nombre, tutor2_email, tutor2_telefono, tutor2_sexo')
         .order('alumno')
 
     if (unidad) query = query.eq('unidad', unidad)
@@ -82,34 +83,7 @@ export default async function ListadoAlumnosPage(props: {
                     <p className="p-12 text-center text-slate-400 font-medium">No se encontraron alumnos con los filtros aplicados.</p>
                 ) : (
                     <>
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-sm">
-                                <thead>
-                                    <tr className="bg-slate-50 text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
-                                        <th className="px-5 py-3.5 text-left">Alumno</th>
-                                        <th className="px-5 py-3.5 text-left">Unidad</th>
-                                        <th className="px-5 py-3.5 text-left">Sexo</th>
-                                        <th className="px-5 py-3.5 text-left">Edad</th>
-                                        <th className="px-5 py-3.5 text-left">Email personal</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-50">
-                                    {alumnos.map((a: any) => (
-                                        <tr key={a.id} className="hover:bg-slate-50/60 transition-colors">
-                                            <td className="px-5 py-3 font-medium text-slate-800">{a.alumno}</td>
-                                            <td className="px-5 py-3">
-                                                <span className="text-xs bg-blue-50 text-blue-700 font-semibold px-2 py-0.5 rounded-full">
-                                                    {a.unidad || '—'}
-                                                </span>
-                                            </td>
-                                            <td className="px-5 py-3 text-slate-500 text-xs">{a.sexo || '—'}</td>
-                                            <td className="px-5 py-3 text-slate-500 text-xs">{a.edad_matricula || '—'}</td>
-                                            <td className="px-5 py-3 text-slate-500 text-xs">{a.email_personal || <span className="text-slate-300 italic">—</span>}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                        <AlumnosTable alumnos={alumnos} />
                         <PaginationControls total={total} page={page} perPage={perPage} />
                     </>
                 )}

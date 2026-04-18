@@ -1,14 +1,14 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { UploadCloud, CheckCircle, Save, Info, RefreshCw, ChevronRight, FileText } from 'lucide-react'
+import { UploadCloud, CheckCircle, Save, Info, RefreshCw, ChevronRight, FileText, Users } from 'lucide-react'
 import { toast } from 'sonner'
 import { previewAlumnosUpdate, applyAlumnosUpdate, insertNewAlumnos } from './actions'
 import type { UpdateItem, CsvRow } from './actions'
 
 type Step = 'upload' | 'preview' | 'insert'
 
-export default function ImportClient({ initialCount, lastUpdate }: { initialCount: number; lastUpdate: string | null }) {
+export default function ImportClient({ totalCount, activeCount, lastUpdate }: { totalCount: number; activeCount: number; lastUpdate: string | null }) {
     const [step, setStep] = useState<Step>('upload')
     const [, setFile] = useState<File | null>(null)
     const [toUpdate, setToUpdate] = useState<UpdateItem[]>([])
@@ -197,14 +197,23 @@ export default function ImportClient({ initialCount, lastUpdate }: { initialCoun
             {/* ── STEP 1: Upload ── */}
             {step === 'upload' && (
                 <div className="space-y-6">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-3 gap-4">
                         <div className="bg-white rounded-2xl border border-slate-200 p-5 flex items-center gap-4">
                             <div className="bg-primary-brand/10 p-3 rounded-xl text-primary-brand">
                                 <FileText className="w-5 h-5" />
                             </div>
                             <div>
                                 <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Alumnos registrados</p>
-                                <p className="text-2xl font-black text-slate-900">{initialCount}</p>
+                                <p className="text-2xl font-black text-slate-900">{totalCount}</p>
+                            </div>
+                        </div>
+                        <div className="bg-white rounded-2xl border border-slate-200 p-5 flex items-center gap-4">
+                            <div className="bg-green-100 p-3 rounded-xl text-green-600">
+                                <Users className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Alumnos activos</p>
+                                <p className="text-2xl font-black text-slate-900">{activeCount}</p>
                             </div>
                         </div>
                         {lastUpdate && (
