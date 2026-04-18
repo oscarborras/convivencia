@@ -1,4 +1,4 @@
-import { Users, Upload, ChevronRight, FileSpreadsheet, Briefcase } from 'lucide-react'
+import { Users, Upload, Briefcase, FileSpreadsheet, Database, ArrowUpFromLine } from 'lucide-react'
 import Link from 'next/link'
 
 export default function ImportarPage() {
@@ -20,90 +20,86 @@ export default function ImportarPage() {
                         </p>
                     </div>
                 </div>
-                {/* Decoración */}
                 <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-emerald-50/50 rounded-full blur-3xl pointer-events-none" />
             </div>
 
             {/* Grid de opciones */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-                {/* Tarjeta de Importar Profesores */}
-                <Link href="/importar/profesores" className="group">
-                    <div className="bg-white rounded-3xl p-6 border-2 border-transparent shadow-sm hover:border-emerald-100 hover:shadow-lg transition-all duration-300 relative overflow-hidden h-full flex flex-col">
-                        <div className="flex items-center justify-between mb-6">
-                            <div className="bg-orange-50 p-4 rounded-2xl text-orange-600 group-hover:scale-110 transition-transform duration-300">
-                                <Briefcase className="w-8 h-8" />
-                            </div>
-                            <div className="bg-gray-50 p-2 rounded-xl text-gray-400 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-colors">
-                                <ChevronRight className="w-5 h-5" />
-                            </div>
+                {/* Profesores */}
+                <div className="bg-white rounded-3xl p-6 border-2 border-transparent shadow-sm hover:border-orange-100 hover:shadow-lg transition-all duration-300 h-full flex flex-col">
+                    <div className="flex items-center gap-4 mb-5">
+                        <div className="bg-orange-50 p-4 rounded-2xl text-orange-600">
+                            <Briefcase className="w-8 h-8" />
                         </div>
-
-                        <div className="flex-1 mt-auto">
-                            <h2 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-emerald-600 transition-colors">Profesores</h2>
-                            <p className="text-gray-500 text-sm leading-relaxed mb-4">
-                                Actualiza el listado de profesores. El sistema procesará el archivo para registrar los nuevos docentes.
-                            </p>
-                        </div>
-
-                        <div className="flex items-center gap-2 text-xs font-semibold text-gray-400 bg-gray-50/80 px-3 py-2 rounded-xl w-fit">
-                            <FileSpreadsheet className="w-4 h-4" />
-                            CSVs válidos
-                        </div>
+                        <h2 className="text-xl font-bold text-gray-900">Profesores</h2>
                     </div>
-                </Link>
-
-                {/* Tarjeta de Importar Alumnos */}
-                <Link href="/importar/alumnos" className="group">
-                    <div className="bg-white rounded-3xl p-6 border-2 border-transparent shadow-sm hover:border-emerald-100 hover:shadow-lg transition-all duration-300 relative overflow-hidden h-full flex flex-col">
-                        <div className="flex items-center justify-between mb-6">
-                            <div className="bg-blue-50 p-4 rounded-2xl text-blue-600 group-hover:scale-110 transition-transform duration-300">
-                                <Users className="w-8 h-8" />
-                            </div>
-                            <div className="bg-gray-50 p-2 rounded-xl text-gray-400 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-colors">
-                                <ChevronRight className="w-5 h-5" />
-                            </div>
-                        </div>
-
-                        <div className="flex-1 mt-auto">
-                            <h2 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-emerald-600 transition-colors">Alumnos</h2>
-                            <p className="text-gray-500 text-sm leading-relaxed mb-4">
-                                Actualiza el listado completo de alumnos. El sistema procesará el archivo para crear o actualizar sus registros.
-                            </p>
-                        </div>
-
-                        <div className="flex items-center gap-2 text-xs font-semibold text-gray-400 bg-gray-50/80 px-3 py-2 rounded-xl w-fit">
-                            <FileSpreadsheet className="w-4 h-4" />
-                            CSVs válidos
-                        </div>
+                    <p className="text-gray-500 text-sm leading-relaxed mb-6 flex-1">
+                        Actualiza el listado de profesores. El sistema procesará el archivo para registrar los nuevos docentes.
+                    </p>
+                    <div className="flex gap-2">
+                        <Link href="/importar/profesores"
+                            className="flex-1 flex items-center justify-center gap-2 bg-orange-50 hover:bg-orange-100 text-orange-700 font-semibold text-sm px-4 py-2.5 rounded-xl transition-colors">
+                            <ArrowUpFromLine className="w-4 h-4" />
+                            Importar
+                        </Link>
+                        <Link href="/importar/profesores/listado"
+                            className="flex-1 flex items-center justify-center gap-2 bg-gray-50 hover:bg-gray-100 text-gray-600 font-semibold text-sm px-4 py-2.5 rounded-xl transition-colors">
+                            <Database className="w-4 h-4" />
+                            Consultar
+                        </Link>
                     </div>
-                </Link>
+                </div>
 
-                {/* Tarjeta de Importar Tutores */}
-                <Link href="/importar/tutores" className="group">
-                    <div className="bg-white rounded-3xl p-6 border-2 border-transparent shadow-sm hover:border-emerald-100 hover:shadow-lg transition-all duration-300 relative overflow-hidden h-full flex flex-col">
-                        <div className="flex items-center justify-between mb-6">
-                            <div className="bg-purple-50 p-4 rounded-2xl text-purple-600 group-hover:scale-110 transition-transform duration-300">
-                                <FileSpreadsheet className="w-8 h-8" />
-                            </div>
-                            <div className="bg-gray-50 p-2 rounded-xl text-gray-400 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-colors">
-                                <ChevronRight className="w-5 h-5" />
-                            </div>
+                {/* Alumnos */}
+                <div className="bg-white rounded-3xl p-6 border-2 border-transparent shadow-sm hover:border-blue-100 hover:shadow-lg transition-all duration-300 h-full flex flex-col">
+                    <div className="flex items-center gap-4 mb-5">
+                        <div className="bg-blue-50 p-4 rounded-2xl text-blue-600">
+                            <Users className="w-8 h-8" />
                         </div>
-
-                        <div className="flex-1 mt-auto">
-                            <h2 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-emerald-600 transition-colors">Tutores</h2>
-                            <p className="text-gray-500 text-sm leading-relaxed mb-4">
-                                Actualiza el listado de tutores. Asigna a cada grupo el correo electrónico de su respectivo tutor/a.
-                            </p>
-                        </div>
-
-                        <div className="flex items-center gap-2 text-xs font-semibold text-gray-400 bg-gray-50/80 px-3 py-2 rounded-xl w-fit">
-                            <FileSpreadsheet className="w-4 h-4" />
-                            CSVs válidos
-                        </div>
+                        <h2 className="text-xl font-bold text-gray-900">Alumnos</h2>
                     </div>
-                </Link>
+                    <p className="text-gray-500 text-sm leading-relaxed mb-6 flex-1">
+                        Actualiza el listado completo de alumnos. El sistema procesará el archivo para crear o actualizar sus registros.
+                    </p>
+                    <div className="flex gap-2">
+                        <Link href="/importar/alumnos"
+                            className="flex-1 flex items-center justify-center gap-2 bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold text-sm px-4 py-2.5 rounded-xl transition-colors">
+                            <ArrowUpFromLine className="w-4 h-4" />
+                            Importar
+                        </Link>
+                        <Link href="/importar/alumnos/listado"
+                            className="flex-1 flex items-center justify-center gap-2 bg-gray-50 hover:bg-gray-100 text-gray-600 font-semibold text-sm px-4 py-2.5 rounded-xl transition-colors">
+                            <Database className="w-4 h-4" />
+                            Consultar
+                        </Link>
+                    </div>
+                </div>
+
+                {/* Tutores */}
+                <div className="bg-white rounded-3xl p-6 border-2 border-transparent shadow-sm hover:border-purple-100 hover:shadow-lg transition-all duration-300 h-full flex flex-col">
+                    <div className="flex items-center gap-4 mb-5">
+                        <div className="bg-purple-50 p-4 rounded-2xl text-purple-600">
+                            <FileSpreadsheet className="w-8 h-8" />
+                        </div>
+                        <h2 className="text-xl font-bold text-gray-900">Tutores</h2>
+                    </div>
+                    <p className="text-gray-500 text-sm leading-relaxed mb-6 flex-1">
+                        Actualiza el listado de tutores. Asigna a cada grupo el correo electrónico de su respectivo tutor/a.
+                    </p>
+                    <div className="flex gap-2">
+                        <Link href="/importar/tutores"
+                            className="flex-1 flex items-center justify-center gap-2 bg-purple-50 hover:bg-purple-100 text-purple-700 font-semibold text-sm px-4 py-2.5 rounded-xl transition-colors">
+                            <ArrowUpFromLine className="w-4 h-4" />
+                            Importar
+                        </Link>
+                        <Link href="/importar/tutores/listado"
+                            className="flex-1 flex items-center justify-center gap-2 bg-gray-50 hover:bg-gray-100 text-gray-600 font-semibold text-sm px-4 py-2.5 rounded-xl transition-colors">
+                            <Database className="w-4 h-4" />
+                            Consultar
+                        </Link>
+                    </div>
+                </div>
 
             </div>
         </div>

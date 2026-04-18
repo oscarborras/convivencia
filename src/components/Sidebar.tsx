@@ -1,6 +1,7 @@
 'use client'
 
 import { Shield, LayoutDashboard, FileText, Menu, LogOut, Clock, X, Upload, GraduationCap, Settings, History, BarChart3, BellOff } from 'lucide-react'
+import { version } from '../../package.json'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
@@ -197,7 +198,7 @@ export default function Sidebar({ userEmail }: SidebarProps) {
                             Cerrar sesión
                         </button>
                     </form>
-                    <span className="block text-center text-[11px] font-semibold text-slate-400 dark:text-slate-500 mt-1 uppercase tracking-wider">v.1.4.0</span>
+                    <span className="block text-center text-[11px] font-semibold text-slate-400 dark:text-slate-500 mt-1 uppercase tracking-wider">v.{version}</span>
                 </div>
             </aside>
         </>

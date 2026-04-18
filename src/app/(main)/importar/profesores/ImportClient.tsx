@@ -252,7 +252,7 @@ export default function ImportClient({ initialCount, lastUpdate }: { initialCoun
                         <div className="mb-6 p-4 rounded-xl bg-primary-brand/5 border border-primary-brand/20 flex gap-3 items-start">
                             <Info className="w-5 h-5 text-primary-brand shrink-0 mt-0.5" />
                             <p className="text-sm text-slate-600">
-                                Sube el CSV exportado de la pestaña <strong>RelPerCen</strong>. Se usarán las columnas
+                                Sube el CSV exportado de la pestaña <strong>Séneca</strong>. Se usarán las columnas
                                 {' '}<strong>Empleado/a, Puesto, Fecha de toma de posesión y Fecha de cese</strong>. El resto se ignoran.
                             </p>
                         </div>
