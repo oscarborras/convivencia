@@ -201,6 +201,7 @@ export default async function RetrasosDashboardPage(props: { searchParams: Promi
                         <div>
                             <h2 className="text-xl font-bold text-gray-900 tracking-tight">Retrasos por Unidad</h2>
                             <p className="text-sm text-gray-500 font-medium">Distribución por grupos en {nombrePeriodo}</p>
+                            <p className="text-sm text-gray-500 font-medium">(15 grupos con más retrasos)</p>
                         </div>
                     </div>
                     <div className="flex-1 min-h-[750px]">
