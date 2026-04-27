@@ -35,7 +35,7 @@ export default function RetrasosCharts({ data, yAxisWidth = 90 }: RetrasosCharts
     }
 
     return (
-        <div className="h-[600px] w-full mt-4">
+        <div className="h-[750px] w-full mt-4">
             <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                     data={data}
@@ -74,12 +74,12 @@ export default function RetrasosCharts({ data, yAxisWidth = 90 }: RetrasosCharts
                         {data.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
-                        <LabelList 
-                            dataKey="value" 
-                            position="right" 
-                            fill="#6B7280" 
-                            fontSize={13} 
-                            fontWeight={600} 
+                        <LabelList
+                            dataKey="value"
+                            position="right"
+                            fill="#6B7280"
+                            fontSize={13}
+                            fontWeight={600}
                         />
                     </Bar>
                 </BarChart>

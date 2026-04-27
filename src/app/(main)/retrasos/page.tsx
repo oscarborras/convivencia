@@ -203,7 +203,7 @@ export default async function RetrasosDashboardPage(props: { searchParams: Promi
                             <p className="text-sm text-gray-500 font-medium">Distribución por grupos en {nombrePeriodo}</p>
                         </div>
                     </div>
-                    <div className="flex-1 min-h-[600px]">
+                    <div className="flex-1 min-h-[750px]">
                         <RetrasosCharts data={chartData} yAxisWidth={120} />
                     </div>
                 </div>
