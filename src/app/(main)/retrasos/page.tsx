@@ -93,7 +93,7 @@ export default async function RetrasosDashboardPage(props: { searchParams: Promi
     const chartData = Object.entries(counts)
         .map(([name, value]) => ({ name, value }))
         .sort((a, b) => b.value - a.value)
-        .slice(0, 8)
+        .slice(0, 15)
 
 
     // 6. Estadísticas de justificación para el donut (filtradas por periodo)
@@ -203,7 +203,7 @@ export default async function RetrasosDashboardPage(props: { searchParams: Promi
                             <p className="text-sm text-gray-500 font-medium">Distribución por grupos en {nombrePeriodo}</p>
                         </div>
                     </div>
-                    <div className="flex-1 min-h-[500px]">
+                    <div className="flex-1 min-h-[600px]">
                         <RetrasosCharts data={chartData} yAxisWidth={120} />
                     </div>
                 </div>

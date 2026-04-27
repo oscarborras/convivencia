@@ -35,7 +35,7 @@ export default function RetrasosCharts({ data, yAxisWidth = 90 }: RetrasosCharts
     }
 
     return (
-        <div className="h-[400px] w-full mt-4">
+        <div className="h-[600px] w-full mt-4">
             <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                     data={data}
