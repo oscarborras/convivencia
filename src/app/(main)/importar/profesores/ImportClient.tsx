@@ -327,9 +327,11 @@ export default function ImportClient({ initialCount, lastUpdate }: { initialCoun
                                                         <td className="px-5 py-2.5 align-top" rowSpan={Object.keys(u.changes).length}>
                                                             <span className={`text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap ${u.reason === 'campos_vacios'
                                                                 ? 'bg-blue-50 text-blue-600'
-                                                                : 'bg-green-50 text-green-600'
+                                                                : u.reason === 'fecha_cese_modificada'
+                                                                    ? 'bg-purple-50 text-purple-600'
+                                                                    : 'bg-green-50 text-green-600'
                                                                 }`}>
-                                                                {u.reason === 'campos_vacios' ? 'Campos vacíos' : 'Contrato renovado'}
+                                                                {u.reason === 'campos_vacios' ? 'Campos vacíos' : u.reason === 'fecha_cese_modificada' ? 'Fecha de cese modificada' : 'Contrato renovado'}
                                                             </span>
                                                         </td>
                                                     )}

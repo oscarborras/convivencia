@@ -23,7 +23,7 @@ export type UpdateItem = {
     profesor: string
     current: { puesto: string | null; fecha_alta: string | null; fecha_cese: string | null }
     changes: { puesto?: string; fecha_alta?: string; fecha_cese?: string | null }
-    reason: 'campos_vacios' | 'contrato_renovado'
+    reason: 'campos_vacios' | 'contrato_renovado' | 'fecha_cese_modificada'
 }
 
 export type NullEmailProfesor = {
@@ -93,8 +93,12 @@ export async function previewProfesoresUpdate(csvRows: CsvRow[]) {
             if (!reason) reason = 'contrato_renovado'
             if (best.puesto && best.puesto !== dbProf.puesto) changes.puesto = best.puesto
             if (best.fecha_alta && best.fecha_alta !== dbProf.fecha_alta) changes.fecha_alta = best.fecha_alta
-            const newCese = best.fecha_cese || null
-            if (newCese !== dbProf.fecha_cese) changes.fecha_cese = newCese
+        }
+
+        const newCese = best.fecha_cese || null
+        if (newCese !== dbProf.fecha_cese) {
+            if (!reason) reason = 'fecha_cese_modificada'
+            changes.fecha_cese = newCese
         }
 
         if (reason && Object.keys(changes).length > 0) {
