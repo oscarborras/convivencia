@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { Clock, AlertTriangle, CheckCircle, Calendar, Users, History as HistoryIcon, ShieldAlert } from 'lucide-react'
-import RetrasosCharts from '@/components/retrasos/RetrasosCharts'
+import UnitsBarChart from '@/components/charts/UnitsBarChart'
 import PartesGravityChart from '@/components/dashboard/PartesGravityChart'
 import RetrasosFilter from '@/components/dashboard/RetrasosFilter'
 import { PieChart as PieChartIcon } from 'lucide-react'
@@ -205,7 +205,7 @@ export default async function RetrasosDashboardPage(props: { searchParams: Promi
                         </div>
                     </div>
                     <div className="flex-1 min-h-[750px]">
-                        <RetrasosCharts data={chartData} yAxisWidth={120} />
+                        <UnitsBarChart data={chartData} yAxisWidth={120} height={750} />
                     </div>
                 </div>
 

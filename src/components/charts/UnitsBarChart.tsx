@@ -12,9 +12,10 @@ import {
     LabelList,
 } from 'recharts'
 
-interface RetrasosChartsProps {
+interface UnitsBarChartProps {
     data: { name: string; value: number }[]
     yAxisWidth?: number
+    height?: number
 }
 
 const COLORS = [
@@ -25,17 +26,17 @@ const COLORS = [
     'var(--chart-5)',
 ]
 
-export default function RetrasosCharts({ data, yAxisWidth = 90 }: RetrasosChartsProps) {
+export default function UnitsBarChart({ data, yAxisWidth = 90, height = 400 }: UnitsBarChartProps) {
     if (data.length === 0) {
         return (
-            <div className="h-[300px] flex items-center justify-center text-gray-400 border-2 border-dashed border-gray-100 rounded-3xl">
+            <div style={{ height: `${height}px` }} className="flex items-center justify-center text-gray-400 border-2 border-dashed border-gray-100 rounded-3xl">
                 Sin datos suficientes
             </div>
         )
     }
 
     return (
-        <div className="h-[750px] w-full mt-4">
+        <div style={{ height: `${height}px` }} className="w-full mt-4">
             <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                     data={data}

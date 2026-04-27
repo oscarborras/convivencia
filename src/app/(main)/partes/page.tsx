@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { FileText, AlertTriangle, ShieldAlert, Calendar, Users, AlertOctagon, History as HistoryIcon, PieChart as PieChartIcon, User, AlertCircle } from 'lucide-react'
-import RetrasosCharts from '@/components/retrasos/RetrasosCharts'
+import UnitsBarChart from '@/components/charts/UnitsBarChart'
 import PartesGravityChart from '@/components/dashboard/PartesGravityChart'
 import PartesFilter from '@/components/dashboard/PartesFilter'
 
@@ -199,7 +199,7 @@ export default async function PartesDashboardPage(props: { searchParams: Promise
                 <div className="lg:col-span-8 bg-white p-8 rounded-3xl shadow-sm border border-gray-100 h-full">
                     <h2 className="text-xl font-bold text-gray-900 mb-8 font-display">Partes por Unidad</h2>
                     <div className="h-[400px]">
-                        <RetrasosCharts data={chartData} yAxisWidth={120} />
+                        <UnitsBarChart data={chartData} yAxisWidth={120} />
                     </div>
                 </div>
 
