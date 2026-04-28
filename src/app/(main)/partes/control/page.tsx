@@ -49,7 +49,7 @@ export default function PartesControlPage() {
     const [page, setPage] = useState(1)
     const [totalCount, setTotalCount] = useState(0)
     const [searchTerm, setSearchTerm] = useState('')
-    const [filterStatus, setFilterStatus] = useState<'all' | 'pending'>('pending')
+    const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'sanctioned'>('pending')
     const [selectedAlumnoId, setSelectedAlumnoId] = useState<string | null>(null)
     const [selectedAlumnoName, setSelectedAlumnoName] = useState<string>('')
     const [alumnoDetails, setAlumnoDetails] = useState<DetalleParte[]>([])
@@ -139,6 +139,8 @@ export default function PartesControlPage() {
 
                 if (filterStatus === 'pending') {
                     filteredData = filteredData.filter((r: any) => r.fecha_sancion === null);
+                } else if (filterStatus === 'sanctioned') {
+                    filteredData = filteredData.filter((r: any) => r.fecha_sancion !== null);
                 }
 
                 if (searchTerm) {
@@ -344,7 +346,7 @@ export default function PartesControlPage() {
                     />
                 </div>
 
-                <div className="flex items-center gap-2 bg-gray-50/50 p-1.5 rounded-2xl border border-gray-100 min-w-[240px]">
+                <div className="flex items-center gap-2 bg-gray-50/50 p-1.5 rounded-2xl border border-gray-100 min-w-[360px]">
                     <button
                         onClick={() => {
                             setFilterStatus('all')
@@ -368,6 +370,18 @@ export default function PartesControlPage() {
                             }`}
                     >
                         Pendientes Sanción
+                    </button>
+                    <button
+                        onClick={() => {
+                            setFilterStatus('sanctioned')
+                            setPage(1)
+                        }}
+                        className={`flex-1 px-4 py-2 rounded-xl text-xs font-bold transition-all ${filterStatus === 'sanctioned'
+                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-100 scale-[1.02]'
+                            : 'text-gray-500 hover:text-gray-900 border-transparent'
+                            }`}
+                    >
+                        Sancionados
                     </button>
                 </div>
             </div>
