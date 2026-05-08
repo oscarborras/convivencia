@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createRetraso } from './actions'
 import { Clock, FileCheck, AlertTriangle, MessageSquare } from 'lucide-react'
 import AlumnoSelector from '@/components/retrasos/AlumnoSelector'
+import HoraInput from '@/components/retrasos/HoraInput'
 import SubmitButton from '@/components/SubmitButton'
 
 export default async function NuevoRetrasoPage({
@@ -70,6 +71,17 @@ export default async function NuevoRetrasoPage({
                 {/* Búsqueda de Alumno */}
                 <div className="bg-white p-5 rounded-3xl shadow-sm border border-gray-100">
                     <AlumnoSelector alumnos={alumnos} />
+                </div>
+
+                {/* Sección: Hora de registro */}
+                <div className="bg-white p-5 rounded-3xl shadow-sm border border-gray-100">
+                    <div className="flex items-center gap-2 mb-3">
+                        <div className="bg-blue-50 p-2 rounded-xl">
+                            <Clock className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <span className="uppercase text-xs tracking-widest text-gray-400">Hora de registro</span>
+                    </div>
+                    <HoraInput />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -12,6 +12,7 @@ export async function createRetraso(formData: FormData) {
     const justificante = formData.get('justificante') === 'true';
     const sancionable = formData.get('sancionable') === 'true';
     const observaciones = formData.get('observaciones') as string;
+    const horaRegistro = formData.get('hora_registro') as string;
 
     const { data: { user } } = await supabase.auth.getUser();
     let registradoPor = user?.email || 'Usuario Desconocido';
@@ -28,8 +29,26 @@ export async function createRetraso(formData: FormData) {
         }
     }
 
+    // Construimos el timestamp combinando la fecha de hoy (en Madrid) con la hora del formulario.
+    // sv-SE produce "YYYY-MM-DD HH:mm:ss", formato seguro para parsear como UTC
+    // independientemente de la zona horaria local del servidor.
+    let fechaISO: string;
+    if (horaRegistro && /^\d{2}:\d{2}$/.test(horaRegistro)) {
+        const now = new Date();
+        const todayMadrid = now.toLocaleDateString('sv-SE', { timeZone: 'Europe/Madrid' }); // YYYY-MM-DD
+        const utcStr = now.toLocaleString('sv-SE', { timeZone: 'UTC' });
+        const madridStr = now.toLocaleString('sv-SE', { timeZone: 'Europe/Madrid' });
+        const offsetMs =
+            new Date(madridStr.replace(' ', 'T') + 'Z').getTime() -
+            new Date(utcStr.replace(' ', 'T') + 'Z').getTime();
+        const baseDate = new Date(`${todayMadrid}T${horaRegistro}:00.000Z`);
+        fechaISO = new Date(baseDate.getTime() - offsetMs).toISOString();
+    } else {
+        fechaISO = new Date().toISOString();
+    }
+
     const retrasoData = {
-        fecha: new Date().toISOString(), // Guardamos fecha y hora completa
+        fecha: fechaISO,
         alumno_id: alumnoId,
         justificante,
         sancionable,
@@ -47,7 +66,7 @@ export async function createRetraso(formData: FormData) {
 
     console.log('Insertado con éxito');
 
-    let fechaFormateada = new Date().toLocaleString('es-ES', {
+    let fechaFormateada = new Date(fechaISO).toLocaleString('es-ES', {
         timeZone: 'Europe/Madrid',
         dateStyle: 'medium',
         timeStyle: 'short'
