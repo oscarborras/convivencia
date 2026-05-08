@@ -1,12 +1,17 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 
-// Ruta de callback para OAuth - Supabase redirige aquí tras autenticación con Google
 export async function GET(request: Request) {
     const requestUrl = new URL(request.url)
     const code = requestUrl.searchParams.get('code')
     const next = requestUrl.searchParams.get('next') ?? '/dashboard'
-    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? requestUrl.origin).replace(/\/$/, '')
+
+    // Detrás de un reverse proxy, request.url puede llevar el host interno.
+    // Se reconstruye el origin a partir de las cabeceras de forwarding si están presentes.
+    const proto = request.headers.get('x-forwarded-proto')?.split(',')[0].trim() ?? requestUrl.protocol.replace(':', '')
+    const host  = request.headers.get('x-forwarded-host')?.split(',')[0].trim() ?? requestUrl.host
+    const origin = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? `${proto}://${host}`
+    const siteUrl = origin
 
     if (code) {
         const response = NextResponse.redirect(`${siteUrl}${next}`)
