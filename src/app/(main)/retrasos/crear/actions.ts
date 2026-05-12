@@ -91,10 +91,11 @@ export async function createRetraso(formData: FormData) {
 
     const { data: configData } = await supabase
         .from('convi_config')
-        .select('email_convivencia')
+        .select('email_convivencia, email_provider')
         .single();
 
     const emailConvivencia = configData?.email_convivencia;
+    const emailProvider = ((configData?.email_provider as string) || 'resend') as 'resend' | 'mailtrap';
 
     const { data: notificacionesBloqueadas } = await supabase
         .from('convi_notificaciones')
@@ -182,7 +183,8 @@ export async function createRetraso(formData: FormData) {
                 to: dest.email,
                 subject: `📌 Aviso de Retraso - ${alumnoData.alumno}`,
                 htmlBody: htmlBody,
-                textBody: `Aviso de Retraso Registrado\n\nAlumno/a: ${alumnoData.alumno}\nUnidad: ${alumnoData.unidad || 'N/A'}\nJustificado: ${justificadoTexto}\nSancionable: ${sancionadoTexto}\nObservaciones: ${obsTexto}\nFecha: ${fechaFormateada}`
+                textBody: `Aviso de Retraso Registrado\n\nAlumno/a: ${alumnoData.alumno}\nUnidad: ${alumnoData.unidad || 'N/A'}\nJustificado: ${justificadoTexto}\nSancionable: ${sancionadoTexto}\nObservaciones: ${obsTexto}\nFecha: ${fechaFormateada}`,
+                provider: emailProvider,
             })
         );
 

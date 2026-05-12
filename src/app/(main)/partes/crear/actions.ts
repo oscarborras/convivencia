@@ -91,10 +91,11 @@ export async function createParte(formData: FormData) {
 
     const { data: configData } = await supabase
         .from('convi_config')
-        .select('email_convivencia')
+        .select('email_convivencia, email_provider')
         .single();
 
     const emailConvivencia = configData?.email_convivencia;
+    const emailProvider = ((configData?.email_provider as string) || 'resend') as 'resend' | 'mailtrap';
     const { data: notificacionesBloqueadas } = await supabase
         .from('convi_notificaciones')
         .select('email')
@@ -192,7 +193,8 @@ export async function createParte(formData: FormData) {
                 to: dest.email,
                 subject: `🚨 Aviso de Parte Disciplinario - ${alumnoData.alumno}`,
                 htmlBody: htmlBody,
-                textBody: `Aviso de Parte Registrado\n\nAlumno/a: ${alumnoData.alumno}\nUnidad: ${alumnoData.unidad || 'N/A'}\nProfesor/a: ${profesorData?.profesor || 'N/A'}\nExpulsión: ${expulsionTexto}\nObservaciones: ${obsTexto}`
+                textBody: `Aviso de Parte Registrado\n\nAlumno/a: ${alumnoData.alumno}\nUnidad: ${alumnoData.unidad || 'N/A'}\nProfesor/a: ${profesorData?.profesor || 'N/A'}\nExpulsión: ${expulsionTexto}\nObservaciones: ${obsTexto}`,
+                provider: emailProvider,
             })
         );
 

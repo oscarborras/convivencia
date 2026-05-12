@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Settings, Save, Calendar, Mail, Loader2 } from 'lucide-react'
+import { Settings, Save, Calendar, Mail, Loader2, Send } from 'lucide-react'
 import { toast } from 'sonner'
 
 export default function AjustesPage() {
@@ -15,7 +15,8 @@ export default function AjustesPage() {
         trimestre2_fin: '',
         trimestre3_inicio: '',
         trimestre3_fin: '',
-        email_convivencia: ''
+        email_convivencia: '',
+        email_provider: 'resend' as 'resend' | 'mailtrap',
     })
 
     const supabase = createClient()
@@ -47,7 +48,8 @@ export default function AjustesPage() {
                     trimestre2_fin: data.trimestre2_fin || '',
                     trimestre3_inicio: data.trimestre3_inicio || '',
                     trimestre3_fin: data.trimestre3_fin || '',
-                    email_convivencia: data.email_convivencia || ''
+                    email_convivencia: data.email_convivencia || '',
+                    email_provider: (data.email_provider as 'resend' | 'mailtrap') || 'resend',
                 })
             }
         } catch (error) {
@@ -72,7 +74,8 @@ export default function AjustesPage() {
                 trimestre2_fin: config.trimestre2_fin || null,
                 trimestre3_inicio: config.trimestre3_inicio || null,
                 trimestre3_fin: config.trimestre3_fin || null,
-                email_convivencia: config.email_convivencia || null
+                email_convivencia: config.email_convivencia || null,
+                email_provider: config.email_provider,
             }
 
             const { error } = await supabase
@@ -159,7 +162,7 @@ export default function AjustesPage() {
                     ))}
                 </div>
 
-                {/* Email de Convivencia */}
+                {/* Email de Convivencia y Proveedor */}
                 <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-50 hover:border-teal-100 transition-colors">
                     <div className="flex items-center gap-3 mb-5">
                         <div className="bg-teal-50 p-2 rounded-xl text-teal-600">
@@ -167,21 +170,54 @@ export default function AjustesPage() {
                         </div>
                         <h2 className="font-bold text-gray-900">Comunicación</h2>
                     </div>
-                    
-                    <div className="max-w-md">
-                        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5 px-1">
-                            Email de Convivencia
-                        </label>
-                        <input
-                            type="email"
-                            placeholder="ejemplo@centro.es"
-                            value={config.email_convivencia}
-                            onChange={(e) => setConfig({ ...config, email_convivencia: e.target.value })}
-                            className="w-full bg-gray-50 border border-gray-100 focus:bg-white focus:ring-4 focus:ring-teal-500/10 focus:border-teal-500 rounded-2xl px-4 py-2.5 transition-all text-gray-700 outline-none"
-                        />
-                        <p className="mt-3 text-sm text-gray-500 px-1 leading-relaxed">
-                            Este correo electrónico será el remitente predeterminado para las notificaciones enviadas a las familias y profesorado.
-                        </p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5 px-1">
+                                Email de Convivencia
+                            </label>
+                            <input
+                                type="email"
+                                placeholder="ejemplo@centro.es"
+                                value={config.email_convivencia}
+                                onChange={(e) => setConfig({ ...config, email_convivencia: e.target.value })}
+                                className="w-full bg-gray-50 border border-gray-100 focus:bg-white focus:ring-4 focus:ring-teal-500/10 focus:border-teal-500 rounded-2xl px-4 py-2.5 transition-all text-gray-700 outline-none"
+                            />
+                            <p className="mt-3 text-sm text-gray-500 px-1 leading-relaxed">
+                                Correo al que se enviarán copias de todas las notificaciones.
+                            </p>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5 px-1">
+                                Proveedor de Envío de Email
+                            </label>
+                            <div className="flex gap-3 mt-1">
+                                {(['resend', 'mailtrap'] as const).map((prov) => (
+                                    <label key={prov} className="flex-1 cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            name="email_provider"
+                                            value={prov}
+                                            checked={config.email_provider === prov}
+                                            onChange={() => setConfig({ ...config, email_provider: prov })}
+                                            className="sr-only"
+                                        />
+                                        <div className={`flex items-center gap-2 p-3 rounded-2xl border-2 transition-all text-sm font-bold
+                                            ${config.email_provider === prov
+                                                ? 'bg-teal-50 border-teal-500 text-teal-700'
+                                                : 'bg-gray-50 border-transparent text-gray-500 hover:bg-gray-100'
+                                            }`}>
+                                            <Send className="w-4 h-4 flex-shrink-0" />
+                                            <span className="capitalize">{prov}</span>
+                                        </div>
+                                    </label>
+                                ))}
+                            </div>
+                            <p className="mt-3 text-sm text-gray-500 px-1 leading-relaxed">
+                                Proveedor SMTP utilizado para el envío de notificaciones.
+                            </p>
+                        </div>
                     </div>
                 </div>
 
