@@ -56,11 +56,14 @@ export async function createRetraso(formData: FormData) {
         registrado_por: registradoPor,
     }
 
-    const { error } = await supabase.from('convi_retrasos').insert(retrasoData)
+    const { data: insertedRetraso, error } = await supabase
+        .from('convi_retrasos')
+        .insert(retrasoData)
+        .select('id')
+        .single()
 
     if (error) {
         console.error('Error insertando retraso:', error)
-        // Redirigimos pasando el mensaje de error en la query para depurar
         redirect(`/retrasos/crear?error=${encodeURIComponent(error.message)}`)
     }
 
@@ -128,6 +131,7 @@ export async function createRetraso(formData: FormData) {
     const listadoFinal = Array.from(uniqueEmailsMap.entries()).map(([email, label]) => ({ email, label }));
 
     let emailsParam = '';
+    let emailResultsInfo: Array<{ email: string; label: string; ok: boolean }> = [];
 
     if (listadoFinal.length > 0 && alumnoData) {
         // Ejecutamos en segundo plano (sin await para no bloquear la respuesta) o con await si queremos asegurar el envío
@@ -197,12 +201,20 @@ export async function createRetraso(formData: FormData) {
             console.log('✅ Correos individuales enviados correctamente');
         }
 
-        const emailResultsInfo = results.map((r, i) => ({
+        emailResultsInfo = results.map((r, i) => ({
             email: listadoFinal[i].email,
             label: listadoFinal[i].label,
             ok: r.success
         }));
         emailsParam = encodeURIComponent(JSON.stringify(emailResultsInfo));
+    }
+
+    // Persistimos el resultado de envío en la BD
+    if (insertedRetraso?.id) {
+        await supabase
+            .from('convi_retrasos')
+            .update({ email_results: emailResultsInfo })
+            .eq('id', insertedRetraso.id)
     }
 
     // Revalidamos los dashboards

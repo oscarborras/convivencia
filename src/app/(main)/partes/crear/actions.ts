@@ -52,7 +52,11 @@ export async function createParte(formData: FormData) {
         registrado_por: registradoPor,
     }
 
-    const { error } = await supabase.from('convi_partes').insert(parteData)
+    const { data: insertedParte, error } = await supabase
+        .from('convi_partes')
+        .insert(parteData)
+        .select('id')
+        .single()
 
     if (error) {
         console.error('Error insertando parte:', error)
@@ -128,6 +132,7 @@ export async function createParte(formData: FormData) {
     const listadoFinal = Array.from(uniqueEmailsMap.entries()).map(([email, label]) => ({ email, label }));
 
     let emailsParam = '';
+    let emailResultsInfo: Array<{ email: string; label: string; ok: boolean }> = [];
 
     if (listadoFinal.length > 0 && alumnoData) {
         const obsTexto = parteData.observaciones ? parteData.observaciones : 'Ninguna anotación';
@@ -207,12 +212,20 @@ export async function createParte(formData: FormData) {
             console.log('✅ Correos de parte individuales enviados correctamente');
         }
 
-        const emailResultsInfo = results.map((r, i) => ({
+        emailResultsInfo = results.map((r, i) => ({
             email: listadoFinal[i].email,
             label: listadoFinal[i].label,
             ok: r.success
         }));
         emailsParam = encodeURIComponent(JSON.stringify(emailResultsInfo));
+    }
+
+    // Persistimos el resultado de envío en la BD
+    if (insertedParte?.id) {
+        await supabase
+            .from('convi_partes')
+            .update({ email_results: emailResultsInfo })
+            .eq('id', insertedParte.id)
     }
 
     revalidatePath('/dashboard')

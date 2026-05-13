@@ -1,7 +1,26 @@
 'use client'
 
 import { useState } from 'react'
-import { AlertCircle, AlertTriangle, X, Info, User, Calendar, Clock, Shield, CheckCircle2, FileText } from 'lucide-react'
+import { AlertCircle, AlertTriangle, X, Info, User, Calendar, Clock, Shield, CheckCircle2, XCircle, FileText, Mail } from 'lucide-react'
+
+type EmailResult = { email: string; label: string; ok: boolean }
+
+function emailStatus(results: EmailResult[] | null | undefined) {
+    if (results === null || results === undefined) return 'none' as const
+    if (results.length === 0) return 'empty' as const
+    if (results.every(r => r.ok)) return 'ok' as const
+    if (results.some(r => r.ok)) return 'partial' as const
+    return 'error' as const
+}
+
+function EmailStatusIcon({ results }: { results: EmailResult[] | null | undefined }) {
+    const s = emailStatus(results)
+    if (s === 'none')    return <span className="text-gray-200 text-base leading-none">·</span>
+    if (s === 'empty')   return <span className="text-gray-400 text-xs font-bold">—</span>
+    if (s === 'ok')      return <CheckCircle2 className="w-4 h-4 text-green-500" />
+    if (s === 'partial') return <AlertCircle  className="w-4 h-4 text-amber-500" />
+    return <XCircle className="w-4 h-4 text-red-500" />
+}
 
 interface RecentPartesTableProps {
     data: any[]
@@ -19,6 +38,7 @@ export default function RecentPartesTable({ data }: RecentPartesTableProps) {
     }
 
     return (
+        <>
         <div className="overflow-x-auto -mx-4">
             <table className="w-full text-left">
                 <thead>
@@ -28,13 +48,13 @@ export default function RecentPartesTable({ data }: RecentPartesTableProps) {
                         <th className="py-2.5 px-4 font-bold text-slate-500 text-[11px] w-32 text-center uppercase tracking-wider">Fecha</th>
                         <th className="py-2.5 px-4 font-bold text-slate-500 text-[11px] uppercase tracking-wider">Motivo Principal</th>
                         <th className="py-2.5 px-4 font-bold text-slate-500 text-[11px] text-center uppercase tracking-wider">Exp.</th>
+                        <th className="py-2.5 px-4 font-bold text-slate-500 text-[11px] text-center uppercase tracking-wider">Email</th>
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
                     {data.map((parte) => {
                         const alumno = Array.isArray(parte.alumnos) ? parte.alumnos[0] : parte.alumnos
 
-                        // Pick the most relevant/first reason to show in the table
                         let motivoPrincipal = "Sin especificar";
                         let isGrave = false;
                         if (parte.conductas_graves && parte.conductas_graves.length > 0) {
@@ -90,6 +110,11 @@ export default function RecentPartesTable({ data }: RecentPartesTableProps) {
                                         )}
                                     </div>
                                 </td>
+                                <td className="py-2 px-4">
+                                    <div className="flex justify-center">
+                                        <EmailStatusIcon results={parte.email_results} />
+                                    </div>
+                                </td>
                             </tr>
                         )
                     })}
@@ -97,7 +122,19 @@ export default function RecentPartesTable({ data }: RecentPartesTableProps) {
             </table>
 
             {/* Modal de Detalle */}
-            {selectedRecord && (
+        </div>
+
+        {/* Leyenda columna Email */}
+        <div className="flex flex-wrap justify-end items-center gap-x-4 gap-y-1 pt-3 w-full text-[10px] text-gray-400">
+            <span className="font-black uppercase tracking-widest">Email:</span>
+            <span className="flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5 text-green-500" /> Todos OK</span>
+            <span className="flex items-center gap-1"><AlertCircle  className="w-3.5 h-3.5 text-amber-500" /> Parcial</span>
+            <span className="flex items-center gap-1"><XCircle      className="w-3.5 h-3.5 text-red-500"   /> Todos fallaron</span>
+            <span className="flex items-center gap-1"><span className="font-bold text-xs w-3.5 text-center">—</span> Sin destinatarios</span>
+            <span className="flex items-center gap-1"><span className="font-bold text-gray-300 text-base leading-none w-3.5 text-center">·</span> Sin datos</span>
+        </div>
+
+        {selectedRecord && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
                     <div className="bg-white w-full max-w-xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-rose-50 flex flex-col max-h-[90vh]">
                         {/* Header */}
@@ -120,7 +157,7 @@ export default function RecentPartesTable({ data }: RecentPartesTableProps) {
                         </div>
 
                         {/* Body */}
-                        <div className="p-8 space-y-6 overflow-y-auto custom-scrollbar">
+                        <div className="p-8 space-y-6 overflow-y-auto">
                             {/* Alumno Info */}
                             <div className="flex items-center gap-4 bg-gray-50/50 p-4 rounded-3xl border border-gray-100">
                                 <div className="bg-white p-3 rounded-2xl shadow-sm border border-gray-100">
@@ -172,7 +209,6 @@ export default function RecentPartesTable({ data }: RecentPartesTableProps) {
                                         </div>
                                     </div>
                                 )}
-
                                 {selectedRecord.conductas_graves && selectedRecord.conductas_graves.length > 0 && (
                                     <div className="space-y-2">
                                         <p className="text-[10px] font-black text-red-500 uppercase tracking-widest ml-1">Conductas Graves</p>
@@ -194,11 +230,43 @@ export default function RecentPartesTable({ data }: RecentPartesTableProps) {
                                         <AlertCircle className="w-4 h-4" /> Genera Expulsión
                                     </span>
                                 )}
-
                                 {selectedRecord.fecha_sancion && (
                                     <span className="bg-blue-50 text-blue-700 px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-wider border border-blue-100 flex items-center gap-2 shadow-sm">
                                         <Shield className="w-4 h-4" /> Sancionado ({new Date(selectedRecord.fecha_sancion).toLocaleDateString('es-ES')})
                                     </span>
+                                )}
+                            </div>
+
+                            {/* Envío de Notificaciones */}
+                            <div className="bg-gray-50/80 p-5 rounded-[2rem] border border-gray-100">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <Mail className="w-3.5 h-3.5 text-gray-400" />
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Envío de Notificaciones</p>
+                                </div>
+                                {selectedRecord.email_results === null || selectedRecord.email_results === undefined ? (
+                                    <p className="text-xs text-gray-400 italic px-1">Sin datos (registro anterior a esta funcionalidad)</p>
+                                ) : selectedRecord.email_results.length === 0 ? (
+                                    <p className="text-xs text-gray-400 italic px-1">Sin destinatarios configurados</p>
+                                ) : (
+                                    <div className="space-y-2">
+                                        {(selectedRecord.email_results as EmailResult[]).map((r, i) => (
+                                            <div key={i} className="flex items-center justify-between bg-white rounded-xl px-4 py-2.5 border border-gray-100 shadow-sm">
+                                                <div className="flex items-center gap-2.5">
+                                                    {r.ok
+                                                        ? <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
+                                                        : <XCircle className="w-4 h-4 text-red-500 shrink-0" />
+                                                    }
+                                                    <div>
+                                                        <p className="text-xs font-bold text-gray-700">{r.label}</p>
+                                                        <p className="text-[10px] text-gray-400">{r.email}</p>
+                                                    </div>
+                                                </div>
+                                                <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${r.ok ? 'bg-green-50 text-green-600 border-green-100' : 'bg-red-50 text-red-600 border-red-100'}`}>
+                                                    {r.ok ? 'OK' : 'Error'}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
                                 )}
                             </div>
 
@@ -256,6 +324,6 @@ export default function RecentPartesTable({ data }: RecentPartesTableProps) {
                     </div>
                 </div>
             )}
-        </div>
+        </>
     )
 }

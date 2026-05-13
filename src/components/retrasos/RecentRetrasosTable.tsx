@@ -1,7 +1,26 @@
 'use client'
 
 import { useState } from 'react'
-import { CheckCircle2, XCircle, AlertCircle, User, Calendar, Clock, Shield, X, Info } from 'lucide-react'
+import { CheckCircle2, XCircle, AlertCircle, User, Calendar, Clock, Shield, X, Info, Mail } from 'lucide-react'
+
+type EmailResult = { email: string; label: string; ok: boolean }
+
+function emailStatus(results: EmailResult[] | null | undefined) {
+    if (results === null || results === undefined) return 'none' as const
+    if (results.length === 0) return 'empty' as const
+    if (results.every(r => r.ok)) return 'ok' as const
+    if (results.some(r => r.ok)) return 'partial' as const
+    return 'error' as const
+}
+
+function EmailStatusIcon({ results }: { results: EmailResult[] | null | undefined }) {
+    const s = emailStatus(results)
+    if (s === 'none')    return <span className="text-gray-200 text-base leading-none">·</span>
+    if (s === 'empty')   return <span className="text-gray-400 text-xs font-bold">—</span>
+    if (s === 'ok')      return <CheckCircle2 className="w-4 h-4 text-green-500" />
+    if (s === 'partial') return <AlertCircle  className="w-4 h-4 text-amber-500" />
+    return <XCircle className="w-4 h-4 text-red-500" />
+}
 
 interface RecentRetrasosTableProps {
     data: any[]
@@ -19,6 +38,7 @@ export default function RecentRetrasosTable({ data }: RecentRetrasosTableProps) 
     }
 
     return (
+        <>
         <div className="overflow-x-auto -mx-4">
             <table className="w-full text-left">
                 <thead>
@@ -28,6 +48,7 @@ export default function RecentRetrasosTable({ data }: RecentRetrasosTableProps) 
                         <th className="py-2.5 px-4 font-bold text-slate-500 text-[11px] uppercase tracking-wider">Fecha</th>
                         <th className="py-2.5 px-4 font-bold text-slate-500 text-[11px] text-center uppercase tracking-wider">Just.</th>
                         <th className="py-2.5 px-4 font-bold text-slate-500 text-[11px] text-center uppercase tracking-wider">Sanc.</th>
+                        <th className="py-2.5 px-4 font-bold text-slate-500 text-[11px] text-center uppercase tracking-wider">Email</th>
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
@@ -82,6 +103,11 @@ export default function RecentRetrasosTable({ data }: RecentRetrasosTableProps) 
                                         )}
                                     </div>
                                 </td>
+                                <td className="py-2.5 px-4">
+                                    <div className="flex justify-center">
+                                        <EmailStatusIcon results={retraso.email_results} />
+                                    </div>
+                                </td>
                             </tr>
                         )
                     })}
@@ -89,11 +115,23 @@ export default function RecentRetrasosTable({ data }: RecentRetrasosTableProps) 
             </table>
 
             {/* Modal de Detalle */}
-            {selectedRecord && (
+        </div>
+
+        {/* Leyenda columna Email */}
+        <div className="flex flex-wrap justify-end items-center gap-x-4 gap-y-1 pt-3 w-full text-[10px] text-gray-400">
+            <span className="font-black uppercase tracking-widest">Email:</span>
+            <span className="flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5 text-green-500" /> Todos OK</span>
+            <span className="flex items-center gap-1"><AlertCircle  className="w-3.5 h-3.5 text-amber-500" /> Parcial</span>
+            <span className="flex items-center gap-1"><XCircle      className="w-3.5 h-3.5 text-red-500"   /> Todos fallaron</span>
+            <span className="flex items-center gap-1"><span className="font-bold text-xs w-3.5 text-center">—</span> Sin destinatarios</span>
+            <span className="flex items-center gap-1"><span className="font-bold text-gray-300 text-base leading-none w-3.5 text-center">·</span> Sin datos</span>
+        </div>
+
+        {selectedRecord && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-indigo-50">
+                    <div className="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-indigo-50 flex flex-col max-h-[90vh]">
                         {/* Header */}
-                        <div className="px-8 py-6 bg-indigo-50/30 border-b border-indigo-100/50 flex justify-between items-center">
+                        <div className="px-8 py-6 bg-indigo-50/30 border-b border-indigo-100/50 flex justify-between items-center shrink-0">
                             <div className="flex items-center gap-4">
                                 <div className="bg-indigo-600 p-3 rounded-2xl text-white shadow-lg shadow-indigo-100">
                                     <Info className="w-6 h-6" />
@@ -112,7 +150,7 @@ export default function RecentRetrasosTable({ data }: RecentRetrasosTableProps) 
                         </div>
 
                         {/* Body */}
-                        <div className="p-8 space-y-6">
+                        <div className="p-8 space-y-6 overflow-y-auto">
                             {/* Alumno Info */}
                             <div className="flex items-center gap-4 bg-gray-50/50 p-4 rounded-3xl border border-gray-100">
                                 <div className="bg-white p-3 rounded-2xl shadow-sm border border-gray-100">
@@ -161,17 +199,48 @@ export default function RecentRetrasosTable({ data }: RecentRetrasosTableProps) 
                                         <XCircle className="w-4 h-4" /> Sin Justificar
                                     </span>
                                 )}
-
                                 {selectedRecord.sancionable && (
                                     <span className="bg-amber-50 text-amber-700 px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-wider border border-amber-100 flex items-center gap-2">
                                         <AlertCircle className="w-4 h-4" /> Sancionable
                                     </span>
                                 )}
-
                                 {selectedRecord.fecha_sancion && (
                                     <span className="bg-blue-50 text-blue-700 px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-wider border border-blue-100 flex items-center gap-2 shadow-sm">
                                         <Shield className="w-4 h-4" /> Sancionado ({new Date(selectedRecord.fecha_sancion).toLocaleDateString('es-ES')})
                                     </span>
+                                )}
+                            </div>
+
+                            {/* Envío de Notificaciones */}
+                            <div className="bg-gray-50/80 p-5 rounded-[2rem] border border-gray-100">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <Mail className="w-3.5 h-3.5 text-gray-400" />
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Envío de Notificaciones</p>
+                                </div>
+                                {selectedRecord.email_results === null || selectedRecord.email_results === undefined ? (
+                                    <p className="text-xs text-gray-400 italic px-1">Sin datos (registro anterior a esta funcionalidad)</p>
+                                ) : selectedRecord.email_results.length === 0 ? (
+                                    <p className="text-xs text-gray-400 italic px-1">Sin destinatarios configurados</p>
+                                ) : (
+                                    <div className="space-y-2">
+                                        {(selectedRecord.email_results as EmailResult[]).map((r, i) => (
+                                            <div key={i} className="flex items-center justify-between bg-white rounded-xl px-4 py-2.5 border border-gray-100 shadow-sm">
+                                                <div className="flex items-center gap-2.5">
+                                                    {r.ok
+                                                        ? <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
+                                                        : <XCircle className="w-4 h-4 text-red-500 shrink-0" />
+                                                    }
+                                                    <div>
+                                                        <p className="text-xs font-bold text-gray-700">{r.label}</p>
+                                                        <p className="text-[10px] text-gray-400">{r.email}</p>
+                                                    </div>
+                                                </div>
+                                                <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${r.ok ? 'bg-green-50 text-green-600 border-green-100' : 'bg-red-50 text-red-600 border-red-100'}`}>
+                                                    {r.ok ? 'OK' : 'Error'}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
                                 )}
                             </div>
 
@@ -203,7 +272,7 @@ export default function RecentRetrasosTable({ data }: RecentRetrasosTableProps) 
                         </div>
 
                         {/* Footer */}
-                        <div className="px-8 py-6 bg-gray-50/50 border-t border-gray-100 flex justify-end">
+                        <div className="px-8 py-6 bg-gray-50/50 border-t border-gray-100 flex justify-end shrink-0">
                             <button
                                 onClick={() => setSelectedRecord(null)}
                                 className="bg-white text-gray-900 px-8 py-3 rounded-2xl font-black text-sm border border-gray-200 hover:border-gray-900 transition-all shadow-sm active:scale-95"
@@ -214,6 +283,6 @@ export default function RecentRetrasosTable({ data }: RecentRetrasosTableProps) 
                     </div>
                 </div>
             )}
-        </div>
+        </>
     )
 }
