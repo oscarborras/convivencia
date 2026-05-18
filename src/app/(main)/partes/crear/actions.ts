@@ -168,12 +168,6 @@ export async function createParte(formData: FormData) {
                         <td style="padding: 10px; border-bottom: 1px solid #eee;">${profesorData?.profesor || 'Desconocido'}</td>
                     </tr>
                     <tr>
-                        <th style="padding: 10px; border-bottom: 1px solid #eee; background: #f8fafc;">Genera expulsión:</th>
-                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
-                           <span style="color: ${parteData.genera_expulsion ? '#ef4444' : '#64748b'}; font-weight: bold;">${expulsionTexto}</span>
-                        </td>
-                    </tr>
-                    <tr>
                         <th style="padding: 10px; border-bottom: 1px solid #eee; background: #f8fafc;">Conductas:</th>
                         <td style="padding: 10px; border-bottom: 1px solid #eee;">${detalleConductas || 'Ninguna especificada'}</td>
                     </tr>
