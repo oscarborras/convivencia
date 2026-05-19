@@ -95,11 +95,11 @@ export async function createParte(formData: FormData) {
 
     const { data: configData } = await supabase
         .from('convi_config')
-        .select('email_convivencia, email_provider')
+        .select('email_convivencia, email_provider_partes')
         .single();
 
     const emailConvivencia = configData?.email_convivencia;
-    const emailProvider = ((configData?.email_provider as string) || 'resend') as 'resend' | 'mailtrap';
+    const emailProvider = ((configData?.email_provider_partes as string) || 'resend') as 'resend' | 'mailtrap';
     const { data: notificacionesBloqueadas } = await supabase
         .from('convi_notificaciones')
         .select('email')

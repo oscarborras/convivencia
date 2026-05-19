@@ -16,7 +16,8 @@ export default function AjustesPage() {
         trimestre3_inicio: '',
         trimestre3_fin: '',
         email_convivencia: '',
-        email_provider: 'resend' as 'resend' | 'mailtrap',
+        email_provider_partes: 'resend' as 'resend' | 'mailtrap',
+        email_provider_retrasos: 'resend' as 'resend' | 'mailtrap',
     })
 
     const supabase = createClient()
@@ -49,7 +50,8 @@ export default function AjustesPage() {
                     trimestre3_inicio: data.trimestre3_inicio || '',
                     trimestre3_fin: data.trimestre3_fin || '',
                     email_convivencia: data.email_convivencia || '',
-                    email_provider: (data.email_provider as 'resend' | 'mailtrap') || 'resend',
+                    email_provider_partes: (data.email_provider_partes as 'resend' | 'mailtrap') || 'resend',
+                    email_provider_retrasos: (data.email_provider_retrasos as 'resend' | 'mailtrap') || 'resend',
                 })
             }
         } catch (error) {
@@ -75,7 +77,8 @@ export default function AjustesPage() {
                 trimestre3_inicio: config.trimestre3_inicio || null,
                 trimestre3_fin: config.trimestre3_fin || null,
                 email_convivencia: config.email_convivencia || null,
-                email_provider: config.email_provider,
+                email_provider_partes: config.email_provider_partes,
+                email_provider_retrasos: config.email_provider_retrasos,
             }
 
             const { error } = await supabase
@@ -133,7 +136,7 @@ export default function AjustesPage() {
                                 </div>
                                 <h2 className="font-bold text-gray-900">{num}º Trimestre</h2>
                             </div>
-                            
+
                             <div className="space-y-4">
                                 <div>
                                     <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5 px-1">
@@ -171,7 +174,7 @@ export default function AjustesPage() {
                         <h2 className="font-bold text-gray-900">Comunicación</h2>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
                             <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5 px-1">
                                 Email de Convivencia
@@ -190,21 +193,21 @@ export default function AjustesPage() {
 
                         <div>
                             <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5 px-1">
-                                Proveedor de Envío de Email
+                                Proveedor — Retrasos
                             </label>
                             <div className="flex gap-3 mt-1">
                                 {(['resend', 'mailtrap'] as const).map((prov) => (
                                     <label key={prov} className="flex-1 cursor-pointer">
                                         <input
                                             type="radio"
-                                            name="email_provider"
+                                            name="email_provider_retrasos"
                                             value={prov}
-                                            checked={config.email_provider === prov}
-                                            onChange={() => setConfig({ ...config, email_provider: prov })}
+                                            checked={config.email_provider_retrasos === prov}
+                                            onChange={() => setConfig({ ...config, email_provider_retrasos: prov })}
                                             className="sr-only"
                                         />
                                         <div className={`flex items-center gap-2 p-3 rounded-2xl border-2 transition-all text-sm font-bold
-                                            ${config.email_provider === prov
+                                            ${config.email_provider_retrasos === prov
                                                 ? 'bg-teal-50 border-teal-500 text-teal-700'
                                                 : 'bg-gray-50 border-transparent text-gray-500 hover:bg-gray-100'
                                             }`}>
@@ -214,10 +217,36 @@ export default function AjustesPage() {
                                     </label>
                                 ))}
                             </div>
-                            <p className="mt-3 text-sm text-gray-500 px-1 leading-relaxed">
-                                Proveedor SMTP utilizado para el envío de notificaciones.
-                            </p>
                         </div>
+
+                        <div>
+                            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1.5 px-1">
+                                Proveedor — Partes
+                            </label>
+                            <div className="flex gap-3 mt-1">
+                                {(['resend', 'mailtrap'] as const).map((prov) => (
+                                    <label key={prov} className="flex-1 cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            name="email_provider_partes"
+                                            value={prov}
+                                            checked={config.email_provider_partes === prov}
+                                            onChange={() => setConfig({ ...config, email_provider_partes: prov })}
+                                            className="sr-only"
+                                        />
+                                        <div className={`flex items-center gap-2 p-3 rounded-2xl border-2 transition-all text-sm font-bold
+                                            ${config.email_provider_partes === prov
+                                                ? 'bg-teal-50 border-teal-500 text-teal-700'
+                                                : 'bg-gray-50 border-transparent text-gray-500 hover:bg-gray-100'
+                                            }`}>
+                                            <Send className="w-4 h-4 flex-shrink-0" />
+                                            <span className="capitalize">{prov}</span>
+                                        </div>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 

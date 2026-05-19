@@ -94,11 +94,11 @@ export async function createRetraso(formData: FormData) {
 
     const { data: configData } = await supabase
         .from('convi_config')
-        .select('email_convivencia, email_provider')
+        .select('email_convivencia, email_provider_retrasos')
         .single();
 
     const emailConvivencia = configData?.email_convivencia;
-    const emailProvider = ((configData?.email_provider as string) || 'resend') as 'resend' | 'mailtrap';
+    const emailProvider = ((configData?.email_provider_retrasos as string) || 'resend') as 'resend' | 'mailtrap';
 
     const { data: notificacionesBloqueadas } = await supabase
         .from('convi_notificaciones')
