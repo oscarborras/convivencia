@@ -213,7 +213,7 @@ async function RetrasosInforme({ filterStart, filterEnd, nombrePeriodo, today }:
                             <p className="text-sm text-gray-500 font-medium">Todas las unidades · {nombrePeriodo}</p>
                         </div>
                     </div>
-                    <div className="flex-1 min-h-[750px]">
+                    <div style={{ height: `${Math.max(400, chartData.length * 40)}px` }}>
                         <UnitsBarChart data={chartData} yAxisWidth={120} height={Math.max(400, chartData.length * 40)} />
                     </div>
                 </div>
