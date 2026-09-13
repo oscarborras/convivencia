@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Settings, Save, Calendar, Mail, Loader2, Send } from 'lucide-react'
+import { Settings, Save, Calendar, Mail, Loader2, Send, AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
+import BorrarHistoricoModal from './BorrarHistoricoModal'
 
 export default function AjustesPage() {
     const [loading, setLoading] = useState(true)
@@ -266,6 +267,23 @@ export default function AjustesPage() {
                     </button>
                 </div>
             </form>
+
+            {/* Zona de Peligro */}
+            <div className="bg-white rounded-3xl p-6 shadow-sm border-2 border-rose-100">
+                <div className="flex items-center gap-3 mb-5">
+                    <div className="bg-rose-50 p-2 rounded-xl text-rose-600">
+                        <AlertTriangle className="w-5 h-5" />
+                    </div>
+                    <h2 className="font-bold text-gray-900">Zona de Peligro</h2>
+                </div>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <p className="text-sm text-gray-500 leading-relaxed max-w-xl">
+                        Borra permanentemente todos los partes y retrasos registrados, para empezar el curso siguiente sin histórico previo.
+                        No afecta a alumnos, profesores ni a la configuración de trimestres.
+                    </p>
+                    <BorrarHistoricoModal />
+                </div>
+            </div>
         </div>
     )
 }
