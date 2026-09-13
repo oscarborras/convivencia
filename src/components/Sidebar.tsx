@@ -1,6 +1,6 @@
 'use client'
 
-import { Shield, LayoutDashboard, FileText, Menu, LogOut, Clock, X, Upload, GraduationCap, Settings, History, BarChart3, BellOff } from 'lucide-react'
+import { Shield, LayoutDashboard, FileText, Menu, LogOut, Clock, X, Upload, GraduationCap, Settings, History, BarChart3, BellOff, FileBarChart } from 'lucide-react'
 import { version } from '../../package.json'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -85,6 +85,12 @@ export default function Sidebar({ userEmail }: SidebarProps) {
                     label: 'Importar Datos',
                     icon: Upload,
                     active: pathname === '/importar'
+                },
+                {
+                    href: '/informes',
+                    label: 'Generar Informe',
+                    icon: FileBarChart,
+                    active: pathname === '/informes'
                 },
                 {
                     href: '/usuarios',
