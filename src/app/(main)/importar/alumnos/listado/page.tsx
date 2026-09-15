@@ -22,15 +22,16 @@ export default async function ListadoAlumnosPage(props: {
 
     const supabase = await createClient()
 
-    // Unidades para el selector
+    // Unidades para el selector (solo alumnos activos)
     const { data: unidadesData } = await supabase
-        .from('alumnos').select('unidad').order('unidad')
+        .from('alumnos').select('unidad').is('estado_matricula', null).order('unidad')
     const unidades = [...new Set((unidadesData || []).map((r: any) => r.unidad).filter(Boolean))].sort() as string[]
 
     // Fetch with DB-level filters (non-text only)
     let query = supabase
         .from('alumnos')
         .select('id, alumno, unidad, sexo, email_personal, edad_matricula, fecha_matricula, estado_matricula, primer_apellido, segundo_apellido, nombre, tutor1_primer_apellido, tutor1_segundo_apellido, tutor1_nombre, tutor1_email, tutor1_telefono, tutor1_sexo, tutor2_primer_apellido, tutor2_segundo_apellido, tutor2_nombre, tutor2_email, tutor2_telefono, tutor2_sexo')
+        .is('estado_matricula', null)
         .order('alumno')
 
     if (unidad) query = query.eq('unidad', unidad)

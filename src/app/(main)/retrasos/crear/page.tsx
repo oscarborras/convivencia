@@ -21,6 +21,7 @@ export default async function NuevoRetrasoPage({
             tutor1_nombre, tutor1_primer_apellido, tutor1_segundo_apellido, tutor1_email,
             tutor2_nombre, tutor2_primer_apellido, tutor2_segundo_apellido, tutor2_email
         `)
+        .is('estado_matricula', null)
         .order('alumno')
 
     const alumnos = (alumnosData || []).map(a => ({
