@@ -19,6 +19,7 @@ export default async function NotificacionesPage() {
             nombre,
             primer_apellido,
             segundo_apellido,
+            unidad,
             tutor1_nombre,
             tutor1_primer_apellido,
             tutor1_segundo_apellido,

@@ -10,6 +10,7 @@ interface Alumno {
     nombre: string
     primer_apellido: string
     segundo_apellido: string
+    unidad: string | null
     tutor1_nombre: string
     tutor1_primer_apellido: string
     tutor1_segundo_apellido: string
@@ -275,8 +276,13 @@ export default function ClientNotificaciones({
                                         <User className="w-4 h-4 text-slate-500 group-hover:text-blue-500" />
                                     </div>
                                     <div>
-                                        <div className="font-bold text-slate-900 text-sm">
+                                        <div className="font-bold text-slate-900 text-sm flex flex-wrap items-center gap-2">
                                             {alumno.nombre} {alumno.primer_apellido} {alumno.segundo_apellido}
+                                            {alumno.unidad && (
+                                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 whitespace-nowrap">
+                                                    {alumno.unidad}
+                                                </span>
+                                            )}
                                         </div>
                                     </div>
                                 </button>
@@ -295,7 +301,14 @@ export default function ClientNotificaciones({
                 {selectedAlumno && (
                     <div className="pt-4 border-t border-slate-100 animate-in slide-in-from-bottom-4 duration-500">
                         <div className="mb-6">
-                            <h2 className="text-xl font-black text-slate-900 tracking-tight">Tutores de {selectedAlumno.nombre}</h2>
+                            <h2 className="text-xl font-black text-slate-900 tracking-tight flex flex-wrap items-center gap-2">
+                                Tutores de {selectedAlumno.nombre}
+                                {selectedAlumno.unidad && (
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 whitespace-nowrap">
+                                        {selectedAlumno.unidad}
+                                    </span>
+                                )}
+                            </h2>
                             <p className="text-sm font-medium text-slate-500">Selecciona a quién deseas bloquear o restaurar las notificaciones</p>
                         </div>
                         
@@ -364,6 +377,11 @@ export default function ClientNotificaciones({
                                                     <span className="text-slate-600 block mt-0.5 truncate">
                                                         {alumno ? `${alumno.nombre} ${alumno.primer_apellido}` : 'Alumno no encontrado'}
                                                     </span>
+                                                    {alumno?.unidad && (
+                                                        <span className="inline-flex items-center mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 normal-case tracking-normal">
+                                                            {alumno.unidad}
+                                                        </span>
+                                                    )}
                                                 </p>
                                             </div>
                                         </div>
