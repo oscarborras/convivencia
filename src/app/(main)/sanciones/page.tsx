@@ -42,10 +42,12 @@ export default async function SancionesDashboardPage(props: { searchParams: Prom
     // Definir límites de fecha para el filtro
     let filterStart = '2000-01-01'
     let filterEnd = '2099-12-31'
+    let nombrePeriodo = 'Total Curso'
 
     if (configData && selectedPeriod !== 'total') {
         filterStart = configData[`trimestre${selectedPeriod}_inicio`]
         filterEnd = configData[`trimestre${selectedPeriod}_fin`]
+        nombrePeriodo = `${selectedPeriod}º Trimestre`
     } else if (configData && selectedPeriod === 'total') {
         filterStart = configData.trimestre1_inicio
         filterEnd = configData.trimestre3_fin
@@ -174,7 +176,7 @@ export default async function SancionesDashboardPage(props: { searchParams: Prom
                             <Gavel className="w-6 h-6" />
                         </div>
                         <div>
-                            <p className="text-sm font-medium text-gray-500">Sanciones Periodo</p>
+                            <p className="text-sm font-medium text-gray-500">{nombrePeriodo}</p>
                             <p className="text-2xl font-bold">{sanciones.length}</p>
                         </div>
                     </div>
