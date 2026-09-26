@@ -1,6 +1,6 @@
 'use client'
 
-import { Shield, LayoutDashboard, FileText, Menu, LogOut, Clock, X, Upload, GraduationCap, Settings, History, BarChart3, BellOff, FileBarChart } from 'lucide-react'
+import { Shield, LayoutDashboard, FileText, Menu, LogOut, Clock, X, Upload, GraduationCap, Settings, History, BarChart3, BellOff, FileBarChart, Gavel } from 'lucide-react'
 import { version } from '../../package.json'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -74,6 +74,23 @@ export default function Sidebar({ userEmail }: SidebarProps) {
                     label: 'Historial',
                     icon: History,
                     active: pathname === '/partes/historial'
+                }
+            ]
+        },
+        {
+            title: 'Sanciones',
+            items: [
+                {
+                    href: '/sanciones',
+                    label: 'Dashboard',
+                    icon: Gavel,
+                    active: pathname === '/sanciones'
+                },
+                {
+                    href: '/sanciones/historial',
+                    label: 'Historial',
+                    icon: History,
+                    active: pathname === '/sanciones/historial'
                 }
             ]
         },

@@ -19,6 +19,7 @@ export default function AjustesPage() {
         email_convivencia: '',
         email_provider_partes: 'resend' as 'resend' | 'mailtrap',
         email_provider_retrasos: 'resend' as 'resend' | 'mailtrap',
+        emails_habilitados: true,
     })
 
     const supabase = createClient()
@@ -53,6 +54,7 @@ export default function AjustesPage() {
                     email_convivencia: data.email_convivencia || '',
                     email_provider_partes: (data.email_provider_partes as 'resend' | 'mailtrap') || 'resend',
                     email_provider_retrasos: (data.email_provider_retrasos as 'resend' | 'mailtrap') || 'resend',
+                    emails_habilitados: data.emails_habilitados ?? true,
                 })
             }
         } catch (error) {
@@ -80,6 +82,7 @@ export default function AjustesPage() {
                 email_convivencia: config.email_convivencia || null,
                 email_provider_partes: config.email_provider_partes,
                 email_provider_retrasos: config.email_provider_retrasos,
+                emails_habilitados: config.emails_habilitados,
             }
 
             const { error } = await supabase
@@ -145,7 +148,7 @@ export default function AjustesPage() {
                                     </label>
                                     <input
                                         type="date"
-                                        value={config[`trimestre${num}_inicio` as keyof typeof config]}
+                                        value={config[`trimestre${num}_inicio` as `trimestre${1 | 2 | 3}_inicio`]}
                                         onChange={(e) => setConfig({ ...config, [`trimestre${num}_inicio`]: e.target.value })}
                                         className="w-full bg-gray-50 border border-gray-100 focus:bg-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 rounded-2xl px-4 py-2.5 transition-all text-gray-700 outline-none"
                                     />
@@ -156,7 +159,7 @@ export default function AjustesPage() {
                                     </label>
                                     <input
                                         type="date"
-                                        value={config[`trimestre${num}_fin` as keyof typeof config]}
+                                        value={config[`trimestre${num}_fin` as `trimestre${1 | 2 | 3}_fin`]}
                                         onChange={(e) => setConfig({ ...config, [`trimestre${num}_fin`]: e.target.value })}
                                         className="w-full bg-gray-50 border border-gray-100 focus:bg-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 rounded-2xl px-4 py-2.5 transition-all text-gray-700 outline-none"
                                     />
@@ -174,6 +177,21 @@ export default function AjustesPage() {
                         </div>
                         <h2 className="font-bold text-gray-900">Comunicación</h2>
                     </div>
+
+                    <label className="flex items-start gap-3 mb-6 p-4 rounded-2xl bg-gray-50 border border-gray-100 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            checked={config.emails_habilitados}
+                            onChange={(e) => setConfig({ ...config, emails_habilitados: e.target.checked })}
+                            className="mt-0.5 w-5 h-5 accent-teal-600 cursor-pointer"
+                        />
+                        <div>
+                            <span className="block text-sm font-bold text-gray-900">Envío de emails habilitado</span>
+                            <span className="block text-sm text-gray-500 leading-relaxed">
+                                Si se desactiva, no se enviará ningún email (partes, retrasos ni avisos del sistema).
+                            </span>
+                        </div>
+                    </label>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>

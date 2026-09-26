@@ -95,7 +95,7 @@ export async function createParte(formData: FormData) {
 
     const { data: configData } = await supabase
         .from('convi_config')
-        .select('email_convivencia, email_provider_partes')
+        .select('email_convivencia, email_provider_partes, emails_habilitados')
         .single();
 
     const emailConvivencia = configData?.email_convivencia;
@@ -134,7 +134,9 @@ export async function createParte(formData: FormData) {
     let emailsParam = '';
     let emailResultsInfo: Array<{ email: string; label: string; ok: boolean }> = [];
 
-    if (listadoFinal.length > 0 && alumnoData) {
+    const emailsHabilitados = configData?.emails_habilitados ?? true;
+
+    if (emailsHabilitados && listadoFinal.length > 0 && alumnoData) {
         const obsTexto = parteData.observaciones ? parteData.observaciones : 'Ninguna anotación';
         const expulsionTexto = parteData.genera_expulsion ? 'Sí' : 'No';
 

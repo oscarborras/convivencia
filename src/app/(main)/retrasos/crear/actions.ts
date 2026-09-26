@@ -94,7 +94,7 @@ export async function createRetraso(formData: FormData) {
 
     const { data: configData } = await supabase
         .from('convi_config')
-        .select('email_convivencia, email_provider_retrasos')
+        .select('email_convivencia, email_provider_retrasos, emails_habilitados')
         .single();
 
     const emailConvivencia = configData?.email_convivencia;
@@ -133,7 +133,9 @@ export async function createRetraso(formData: FormData) {
     let emailsParam = '';
     let emailResultsInfo: Array<{ email: string; label: string; ok: boolean }> = [];
 
-    if (listadoFinal.length > 0 && alumnoData) {
+    const emailsHabilitados = configData?.emails_habilitados ?? true;
+
+    if (emailsHabilitados && listadoFinal.length > 0 && alumnoData) {
         // Ejecutamos en segundo plano (sin await para no bloquear la respuesta) o con await si queremos asegurar el envío
         // Lo dejamos con await para registrar posibles errores en el log del servidor
         const justificadoTexto = justificante ? 'Sí' : 'No';

@@ -34,6 +34,11 @@ interface DetalleParte {
     genera_expulsion: boolean;
     observaciones: string;
     fecha_sancion: string | null;
+    convi_sanciones: {
+        fecha_inicio: string | null;
+        fecha_fin: string | null;
+        observaciones: string | null;
+    } | null;
     profesores: any;
     registrado_por: string | null;
 }
@@ -56,6 +61,9 @@ export default function PartesControlPage() {
     const [loadingDetails, setLoadingDetails] = useState(false)
     const [selectedRecords, setSelectedRecords] = useState<string[]>([])
     const [bulkSancionDate, setBulkSancionDate] = useState(new Date().toISOString().split('T')[0])
+    const [bulkSancionInicio, setBulkSancionInicio] = useState('')
+    const [bulkSancionFin, setBulkSancionFin] = useState('')
+    const [bulkSancionObs, setBulkSancionObs] = useState('')
     const [updatingBulk, setUpdatingBulk] = useState(false)
 
     const supabase = createClient()
@@ -215,14 +223,14 @@ export default function PartesControlPage() {
 
             const { data, error } = await supabase
                 .from('convi_partes')
-                .select('id, fecha, hora, conductas_contrarias, conductas_graves, genera_expulsion, observaciones, fecha_sancion, registrado_por, profesores(profesor)')
+                .select('id, fecha, hora, conductas_contrarias, conductas_graves, genera_expulsion, observaciones, fecha_sancion, registrado_por, profesores(profesor), convi_sanciones(fecha_inicio, fecha_fin, observaciones)')
                 .eq('alumno_id', alumnoId)
                 .gte('fecha', startDate)
                 .lte('fecha', endDate)
                 .order('fecha', { ascending: false })
 
             if (error) throw error
-            setAlumnoDetails(data || [])
+            setAlumnoDetails((data as unknown as DetalleParte[]) || [])
         } catch (error) {
             console.error('Error fetching alumno details:', error)
             toast.error('Error al cargar los detalles del alumno')
@@ -233,18 +241,32 @@ export default function PartesControlPage() {
 
     const handleBulkSancion = async () => {
         if (selectedRecords.length === 0) return
+        if (!bulkSancionDate || !bulkSancionInicio || !bulkSancionFin) {
+            toast.error('Indica la fecha de la sanción, de inicio y de fin')
+            return
+        }
+        if (bulkSancionFin < bulkSancionInicio) {
+            toast.error('La fecha de fin no puede ser anterior a la de inicio')
+            return
+        }
 
         setUpdatingBulk(true)
         try {
-            const { error } = await supabase
-                .from('convi_partes')
-                .update({ fecha_sancion: bulkSancionDate })
-                .in('id', selectedRecords)
+            const { error } = await supabase.rpc('aplicar_sancion', {
+                p_parte_ids: selectedRecords,
+                p_fecha_sancion: bulkSancionDate,
+                p_fecha_inicio: bulkSancionInicio,
+                p_fecha_fin: bulkSancionFin,
+                p_observaciones: bulkSancionObs,
+            })
 
             if (error) throw error
 
             toast.success(`Se han sancionado ${selectedRecords.length} partes`)
             setSelectedRecords([])
+            setBulkSancionInicio('')
+            setBulkSancionFin('')
+            setBulkSancionObs('')
             if (selectedAlumnoId) {
                 fetchAlumnoDetails(selectedAlumnoId, selectedAlumnoName)
             }
@@ -525,8 +547,8 @@ export default function PartesControlPage() {
                                 </div>
                             ) : alumnoDetails.length > 0 ? (
                                 <div className="space-y-4">
-                                    <div className="bg-rose-50/50 rounded-2xl p-4 flex flex-col sm:flex-row items-center gap-4 mb-6 sticky top-0 z-10 backdrop-blur-md border border-rose-100/50">
-                                        <div className="flex items-center gap-3 flex-1">
+                                    <div className="bg-rose-50/50 rounded-2xl p-4 mb-6 sticky top-0 z-10 backdrop-blur-md border border-rose-100/50">
+                                        <div className="flex items-center gap-3">
                                             <input
                                                 type="checkbox"
                                                 checked={selectedRecords.length === alumnoDetails.length && alumnoDetails.length > 0}
@@ -541,20 +563,47 @@ export default function PartesControlPage() {
                                         </div>
 
                                         {selectedRecords.length > 0 && (
-                                            <div className="flex items-center gap-2 animate-in slide-in-from-right-4 duration-300">
-                                                <input
-                                                    type="date"
-                                                    value={bulkSancionDate}
-                                                    onChange={(e) => setBulkSancionDate(e.target.value)}
-                                                    className="px-3 py-1.5 rounded-xl border border-rose-200 text-sm font-bold text-rose-700 bg-white focus:outline-none focus:ring-2 focus:ring-rose-500/20 shadow-sm"
-                                                />
-                                                <button
-                                                    onClick={handleBulkSancion}
-                                                    disabled={updatingBulk}
-                                                    className="bg-rose-600 text-white px-4 py-1.5 rounded-xl text-sm font-bold hover:bg-rose-700 transition-all shadow-md shadow-rose-100 flex items-center gap-2 disabled:opacity-50"
-                                                >
-                                                    {updatingBulk ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Aplicar Sanción'}
-                                                </button>
+                                            <div className="mt-4 space-y-3 animate-in slide-in-from-top-2 duration-300">
+                                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                                    {[
+                                                        { label: 'Fecha sanción', value: bulkSancionDate, set: setBulkSancionDate },
+                                                        { label: 'Inicio efecto', value: bulkSancionInicio, set: setBulkSancionInicio },
+                                                        { label: 'Fin sanción', value: bulkSancionFin, set: setBulkSancionFin },
+                                                    ].map(({ label, value, set }) => (
+                                                        <div key={label}>
+                                                            <label className="block text-[10px] font-black text-rose-400 uppercase tracking-widest mb-1 px-1">
+                                                                {label}
+                                                            </label>
+                                                            <input
+                                                                type="date"
+                                                                value={value}
+                                                                onChange={(e) => set(e.target.value)}
+                                                                className="w-full px-3 py-1.5 rounded-xl border border-rose-200 text-sm font-bold text-rose-700 bg-white focus:outline-none focus:ring-2 focus:ring-rose-500/20 shadow-sm"
+                                                            />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <div>
+                                                    <label className="block text-[10px] font-black text-rose-400 uppercase tracking-widest mb-1 px-1">
+                                                        Observaciones
+                                                    </label>
+                                                    <textarea
+                                                        rows={2}
+                                                        value={bulkSancionObs}
+                                                        onChange={(e) => setBulkSancionObs(e.target.value)}
+                                                        placeholder="Observaciones de la sanción (opcional)"
+                                                        className="w-full px-3 py-2 rounded-xl border border-rose-200 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-rose-500/20 shadow-sm resize-none"
+                                                    />
+                                                </div>
+                                                <div className="flex justify-end">
+                                                    <button
+                                                        onClick={handleBulkSancion}
+                                                        disabled={updatingBulk}
+                                                        className="bg-rose-600 text-white px-4 py-1.5 rounded-xl text-sm font-bold hover:bg-rose-700 transition-all shadow-md shadow-rose-100 flex items-center gap-2 disabled:opacity-50"
+                                                    >
+                                                        {updatingBulk ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Aplicar Sanción'}
+                                                    </button>
+                                                </div>
                                             </div>
                                         )}
                                     </div>
@@ -650,6 +699,20 @@ export default function PartesControlPage() {
                                                                 <span>{c}</span>
                                                             </div>
                                                         ))}
+                                                    </div>
+                                                )}
+
+                                                {detalle.fecha_sancion && detalle.convi_sanciones && (detalle.convi_sanciones.fecha_inicio || detalle.convi_sanciones.observaciones) && (
+                                                    <div className="mt-2 mb-3 bg-blue-50/60 p-3 rounded-2xl text-xs text-blue-900 border border-blue-100 space-y-1">
+                                                        {detalle.convi_sanciones.fecha_inicio && (
+                                                            <div className="font-bold">
+                                                                Sanción: del {new Date(detalle.convi_sanciones.fecha_inicio).toLocaleDateString('es-ES')}
+                                                                {detalle.convi_sanciones.fecha_fin && ` al ${new Date(detalle.convi_sanciones.fecha_fin).toLocaleDateString('es-ES')}`}
+                                                            </div>
+                                                        )}
+                                                        {detalle.convi_sanciones.observaciones && (
+                                                            <div className="italic">{detalle.convi_sanciones.observaciones}</div>
+                                                        )}
                                                     </div>
                                                 )}
 

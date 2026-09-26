@@ -33,11 +33,11 @@ export async function resetHistorialConvivencia(): Promise<ResetHistorialResult>
     // Notificación por email (best-effort: no debe hacer fallar el borrado si el envío falla)
     try {
         const [{ data: config }, { data: { user } }] = await Promise.all([
-            supabase.from('convi_config').select('email_convivencia, email_provider_partes').single(),
+            supabase.from('convi_config').select('email_convivencia, email_provider_partes, emails_habilitados').single(),
             supabase.auth.getUser(),
         ])
 
-        if (config?.email_convivencia) {
+        if (config?.email_convivencia && (config.emails_habilitados ?? true)) {
             await sendEmail({
                 to: config.email_convivencia,
                 subject: 'Histórico de convivencia reiniciado',
