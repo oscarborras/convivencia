@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { hoyMadrid } from '@/lib/fechas'
 
 type DbProfesor = {
     id: string
@@ -43,7 +44,7 @@ function getBestRow(rows: CsvRow[]): CsvRow {
 
 export async function previewProfesoresUpdate(csvRows: CsvRow[]) {
     const supabase = await createClient()
-    const today = new Date().toISOString().split('T')[0]
+    const today = hoyMadrid()
 
     const { data: dbProfs, error } = await supabase
         .from('profesores')

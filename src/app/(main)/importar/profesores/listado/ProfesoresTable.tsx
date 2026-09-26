@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { X, Briefcase, Mail, Calendar } from 'lucide-react'
+import { hoyMadrid } from '@/lib/fechas'
 
 export type Profesor = {
     id: string
@@ -31,7 +32,7 @@ function Field({ label, value }: { label: string; value: string | null | undefin
 export default function ProfesoresTable({ profesores }: { profesores: Profesor[] }) {
     const [selected, setSelected] = useState<Profesor | null>(null)
 
-    const today = new Date().toISOString().slice(0, 10)
+    const today = hoyMadrid()
     const isActivo = (p: Profesor) => !p.fecha_cese || p.fecha_cese > today
 
     return (

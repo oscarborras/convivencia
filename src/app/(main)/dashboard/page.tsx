@@ -4,12 +4,13 @@ import { ShieldAlert, Users, Clock, Plus, BarChart3, TrendingUp, PieChart as Pie
 import IncidenciasEvolutionChart from '@/components/dashboard/IncidenciasEvolutionChart'
 import IncidenciasPorCursoChart from '@/components/dashboard/IncidenciasPorCursoChart'
 import CourseChartFilter from '@/components/dashboard/CourseChartFilter'
+import { diaMadrid, hoyMadrid, inicioDiaMadrid, rangoDiaMadrid } from '@/lib/fechas'
 
 export default async function DashboardPage(props: { searchParams: Promise<{ coursePeriod?: string }> }) {
     const searchParams = await props.searchParams
     const supabase = await createClient()
-    const today = new Date().toISOString().split('T')[0]
-    const now = new Date()
+    const today = hoyMadrid()
+    const rangoHoy = rangoDiaMadrid(today)
 
     // 0. Obtener configuración de trimestres
     const { data: configData } = await supabase.from('convi_config').select('*').single()
@@ -17,16 +18,9 @@ export default async function DashboardPage(props: { searchParams: Promise<{ cou
     // Identificar trimestre actual
     let currentT = 'total'
     if (configData) {
-        const t1S = new Date(configData.trimestre1_inicio)
-        const t1E = new Date(configData.trimestre1_fin)
-        const t2S = new Date(configData.trimestre2_inicio)
-        const t2E = new Date(configData.trimestre2_fin)
-        const t3S = new Date(configData.trimestre3_inicio)
-        const t3E = new Date(configData.trimestre3_fin)
-
-        if (now >= t1S && now <= t1E) currentT = '1'
-        else if (now >= t2S && now <= t2E) currentT = '2'
-        else if (now >= t3S && now <= t3E) currentT = '3'
+        if (today >= configData.trimestre1_inicio && today <= configData.trimestre1_fin) currentT = '1'
+        else if (today >= configData.trimestre2_inicio && today <= configData.trimestre2_fin) currentT = '2'
+        else if (today >= configData.trimestre3_inicio && today <= configData.trimestre3_fin) currentT = '3'
     }
 
     const selectedPeriod = searchParams.coursePeriod || currentT
@@ -49,12 +43,12 @@ export default async function DashboardPage(props: { searchParams: Promise<{ cou
     const { count: countRetrasosHoy } = await supabase
         .from('convi_retrasos')
         .select('*', { count: 'exact', head: true })
-        .gte('fecha', `${today}T00:00:00.000Z`)
-        .lt('fecha', `${today}T23:59:59.999Z`)
+        .gte('fecha', rangoHoy.inicio)
+        .lt('fecha', rangoHoy.fin)
 
     // 4. Obtener datos para el gráfico de evolución (desde septiembre)
-    const currentYear = now.getFullYear()
-    const currentMonth = now.getMonth() // 0-indexed (0=Jan, 8=Sep)
+    const currentYear = Number(today.slice(0, 4))
+    const currentMonth = Number(today.slice(5, 7)) - 1 // 0-indexed (0=Jan, 8=Sep)
 
     // El año académico empieza en septiembre. 
     // Si estamos en meses 0-7 (Ene-Ago), el año de inicio es el anterior.
@@ -67,31 +61,32 @@ export default async function DashboardPage(props: { searchParams: Promise<{ cou
             .gte('fecha', startDateEvolution),
         supabase.from('convi_retrasos')
             .select('fecha, alumnos(unidad)')
-            .gte('fecha', startDateEvolution)
+            .gte('fecha', inicioDiaMadrid(startDateEvolution))
     ])
 
     // Procesar meses desde septiembre hasta hoy
     const monthsNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
     const evolutionMap: any[] = []
 
-    let tempDate = new Date(academicStartYear, 8, 1)
-    while (tempDate <= now) {
+    for (let y = academicStartYear, m = 8; y < currentYear || (y === currentYear && m <= currentMonth); m === 11 ? (y++, m = 0) : m++) {
         evolutionMap.push({
-            label: monthsNames[tempDate.getMonth()],
-            month: tempDate.getMonth(),
-            year: tempDate.getFullYear(),
+            label: monthsNames[m],
+            month: m,
+            year: y,
             partes: 0,
             retrasos: 0,
             moviles: 0
         })
-        tempDate.setMonth(tempDate.getMonth() + 1)
     }
+
+    // Mes (0-11) y año de un día 'YYYY-MM-DD'
+    const mesDe = (dia: string) => ({ month: Number(dia.slice(5, 7)) - 1, year: Number(dia.slice(0, 4)) })
 
     const CONDUCTA_MOVIL = "Usar móviles, aparatos electrónicos y similares sin permiso";
 
     evolutionPartes?.forEach(p => {
-        const d = new Date(p.fecha)
-        const item = evolutionMap.find(ed => ed.month === d.getMonth() && ed.year === d.getFullYear())
+        const d = mesDe(p.fecha)
+        const item = evolutionMap.find(ed => ed.month === d.month && ed.year === d.year)
         if (item) {
             item.partes++
             const hasMovil = (p.conductas_contrarias?.includes(CONDUCTA_MOVIL)) || (p.conductas_graves?.includes(CONDUCTA_MOVIL))
@@ -100,8 +95,8 @@ export default async function DashboardPage(props: { searchParams: Promise<{ cou
     })
 
     evolutionRetrasos?.forEach(r => {
-        const d = new Date(r.fecha)
-        const item = evolutionMap.find(ed => ed.month === d.getMonth() && ed.year === d.getFullYear())
+        const d = mesDe(diaMadrid(r.fecha))
+        const item = evolutionMap.find(ed => ed.month === d.month && ed.year === d.year)
         if (item) item.retrasos++
     })
 
@@ -117,12 +112,13 @@ export default async function DashboardPage(props: { searchParams: Promise<{ cou
     const cursoMap: Record<string, any> = {}
 
     // Definir límites de fecha para el filtro de curso
-    let filterStart: Date | null = null
-    let filterEnd: Date | null = null
+    // Días 'YYYY-MM-DD' (comparables como texto), ambos incluidos
+    let filterStart: string | null = null
+    let filterEnd: string | null = null
 
     if (configData && selectedPeriod !== 'total') {
-        filterStart = new Date(configData[`trimestre${selectedPeriod}_inicio`])
-        filterEnd = new Date(configData[`trimestre${selectedPeriod}_fin`])
+        filterStart = configData[`trimestre${selectedPeriod}_inicio`]
+        filterEnd = configData[`trimestre${selectedPeriod}_fin`]
     }
 
     const normalizeCurso = (unidad: string) => {
@@ -137,7 +133,7 @@ export default async function DashboardPage(props: { searchParams: Promise<{ cou
     }
 
     evolutionPartes?.forEach(p => {
-        const d = new Date(p.fecha)
+        const d = p.fecha
         if (filterStart && filterEnd && (d < filterStart || d > filterEnd)) return
 
         const alumno = Array.isArray(p.alumnos) ? p.alumnos[0] : p.alumnos
@@ -159,7 +155,7 @@ export default async function DashboardPage(props: { searchParams: Promise<{ cou
     })
 
     evolutionRetrasos?.forEach(r => {
-        const d = new Date(r.fecha)
+        const d = diaMadrid(r.fecha)
         if (filterStart && filterEnd && (d < filterStart || d > filterEnd)) return
 
         const alumno = Array.isArray(r.alumnos) ? r.alumnos[0] : r.alumnos

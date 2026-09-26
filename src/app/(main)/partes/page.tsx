@@ -3,12 +3,12 @@ import { FileText, AlertTriangle, ShieldAlert, Calendar, Users, AlertOctagon, Hi
 import UnitsBarChart from '@/components/charts/UnitsBarChart'
 import PartesGravityChart from '@/components/dashboard/PartesGravityChart'
 import PartesFilter from '@/components/dashboard/PartesFilter'
+import { hoyMadrid } from '@/lib/fechas'
 
 export default async function PartesDashboardPage(props: { searchParams: Promise<{ period?: string }> }) {
     const searchParams = await props.searchParams
     const supabase = await createClient()
-    const today = new Date().toISOString().split('T')[0]
-    const now = new Date()
+    const today = hoyMadrid()
 
     // 0. Obtener configuración de trimestres
     const { data: configData } = await supabase.from('convi_config').select('*').single()
@@ -16,16 +16,9 @@ export default async function PartesDashboardPage(props: { searchParams: Promise
     // Identificar trimestre actual
     let currentT = 'total'
     if (configData) {
-        const t1S = new Date(configData.trimestre1_inicio)
-        const t1E = new Date(configData.trimestre1_fin)
-        const t2S = new Date(configData.trimestre2_inicio)
-        const t2E = new Date(configData.trimestre2_fin)
-        const t3S = new Date(configData.trimestre3_inicio)
-        const t3E = new Date(configData.trimestre3_fin)
-
-        if (now >= t1S && now <= t1E) currentT = '1'
-        else if (now >= t2S && now <= t2E) currentT = '2'
-        else if (now >= t3S && now <= t3E) currentT = '3'
+        if (today >= configData.trimestre1_inicio && today <= configData.trimestre1_fin) currentT = '1'
+        else if (today >= configData.trimestre2_inicio && today <= configData.trimestre2_fin) currentT = '2'
+        else if (today >= configData.trimestre3_inicio && today <= configData.trimestre3_fin) currentT = '3'
     }
 
     const selectedPeriod = searchParams.period || currentT

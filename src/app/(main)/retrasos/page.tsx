@@ -4,12 +4,13 @@ import UnitsBarChart from '@/components/charts/UnitsBarChart'
 import PartesGravityChart from '@/components/dashboard/PartesGravityChart'
 import RetrasosFilter from '@/components/dashboard/RetrasosFilter'
 import { PieChart as PieChartIcon } from 'lucide-react'
+import { hoyMadrid, inicioDiaMadrid, rangoDiaMadrid } from '@/lib/fechas'
 
 export default async function RetrasosDashboardPage(props: { searchParams: Promise<{ period?: string }> }) {
     const searchParams = await props.searchParams
     const supabase = await createClient()
-    const today = new Date().toISOString().split('T')[0]
-    const now = new Date()
+    const today = hoyMadrid()
+    const rangoHoy = rangoDiaMadrid(today)
 
     // 1. Obtener configuración de trimestres
     const { data: config } = await supabase
@@ -41,26 +42,31 @@ export default async function RetrasosDashboardPage(props: { searchParams: Promi
         nombrePeriodo = 'Total Curso'
     }
 
+    // convi_retrasos.fecha es timestamptz: el periodo va de las 00:00 de España del primer día
+    // a las 00:00 del día siguiente al último (así se incluye el último día completo)
+    const retrasosDesde = inicioDiaMadrid(filterStart)
+    const retrasosHasta = rangoDiaMadrid(filterEnd).fin
+
     // 3. Estadísticas dinámicas
     const { count: totalHoy } = await supabase
         .from('convi_retrasos')
         .select('*', { count: 'exact', head: true })
-        .gte('fecha', `${today}T00:00:00.000Z`)
-        .lt('fecha', `${today}T23:59:59.999Z`)
+        .gte('fecha', rangoHoy.inicio)
+        .lt('fecha', rangoHoy.fin)
 
     const { count: totalTrimestre } = await supabase
         .from('convi_retrasos')
         .select('*', { count: 'exact', head: true })
-        .gte('fecha', filterStart)
-        .lte('fecha', filterEnd)
+        .gte('fecha', retrasosDesde)
+        .lt('fecha', retrasosHasta)
 
     const { data: pendientesData } = await supabase
         .from('convi_retrasos')
         .select('alumno_id')
         .eq('sancionable', true)
         .is('fecha_sancion', null)
-        .gte('fecha', filterStart)
-        .lte('fecha', filterEnd)
+        .gte('fecha', retrasosDesde)
+        .lt('fecha', retrasosHasta)
 
     const countAlumnosPendientes = new Set(pendientesData?.map(r => r.alumno_id)).size
 
@@ -68,8 +74,8 @@ export default async function RetrasosDashboardPage(props: { searchParams: Promi
         .from('convi_retrasos')
         .select('*', { count: 'exact', head: true })
         .eq('sancionable', true)
-        .gte('fecha', filterStart)
-        .lte('fecha', filterEnd)
+        .gte('fecha', retrasosDesde)
+        .lt('fecha', retrasosHasta)
 
     // 4. Datos para el gráfico de retrasos por curso
     const { data: retrasosPorCursoRaw } = await supabase
@@ -80,8 +86,8 @@ export default async function RetrasosDashboardPage(props: { searchParams: Promi
                 unidad
             )
         `)
-        .gte('fecha', filterStart)
-        .lte('fecha', filterEnd)
+        .gte('fecha', retrasosDesde)
+        .lt('fecha', retrasosHasta)
 
     const counts: Record<string, number> = {}
     retrasosPorCursoRaw?.forEach((r: any) => {
@@ -101,8 +107,8 @@ export default async function RetrasosDashboardPage(props: { searchParams: Promi
         .from('convi_retrasos')
         .select('*', { count: 'exact', head: true })
         .eq('justificante', true)
-        .gte('fecha', filterStart)
-        .lte('fecha', filterEnd)
+        .gte('fecha', retrasosDesde)
+        .lt('fecha', retrasosHasta)
 
     const totalPeriodo = retrasosPorCursoRaw?.length || 0;
     const countNoJustificados = totalPeriodo - (countJustificados || 0);

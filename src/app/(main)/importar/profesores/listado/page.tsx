@@ -5,6 +5,7 @@ import PaginationControls from '@/components/ui/PaginationControls'
 import ProfesoresFilters from './Filters'
 import ProfesoresActivosModal from './ProfesoresActivosModal'
 import ProfesoresTable from './ProfesoresTable'
+import { hoyMadrid } from '@/lib/fechas'
 
 export const dynamic = 'force-dynamic'
 
@@ -39,7 +40,7 @@ export default async function ListadoProfesoresPage(props: {
     const puestos = [...new Set(allData.map(p => p.puesto).filter(Boolean))].sort() as string[]
 
     // Accent+case insensitive multi-word JS filter
-    const today = new Date().toISOString().slice(0, 10)
+    const today = hoyMadrid()
     const words = search.split(/\s+/).filter(Boolean).map(normalize)
     const filtered = allData.filter(p => {
         if (words.length) {

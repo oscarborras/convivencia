@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { AlertCircle, AlertTriangle, X, Info, User, Calendar, CalendarClock, CalendarCheck, Shield, Gavel, FileText, Clock } from 'lucide-react'
+import { hoyMadrid } from '@/lib/fechas'
 
 interface ParteSancion {
     id: string
@@ -43,7 +44,7 @@ const formatLarga = (fecha: string | null) =>
     fecha ? new Date(fecha).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : 'No indicada'
 
 function estadoSancion(s: Sancion) {
-    const today = new Date().toISOString().split('T')[0]
+    const today = hoyMadrid()
     if (!s.fecha_inicio || !s.fecha_fin) return { label: 'Sin fechas', className: 'bg-gray-50 text-gray-500 border-gray-200' }
     if (s.fecha_fin < today) return { label: 'Finalizada', className: 'bg-emerald-50 text-emerald-700 border-emerald-100' }
     if (s.fecha_inicio > today) return { label: 'Próxima', className: 'bg-amber-50 text-amber-700 border-amber-100' }

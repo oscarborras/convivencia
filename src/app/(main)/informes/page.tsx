@@ -12,6 +12,7 @@ import {
 import UnitsBarChart from '@/components/charts/UnitsBarChart'
 import PartesGravityChart from '@/components/dashboard/PartesGravityChart'
 import InformesToolbar from './InformesToolbar'
+import { hoyMadrid, inicioDiaMadrid, rangoDiaMadrid } from '@/lib/fechas'
 
 type Tipo = 'retrasos' | 'partes'
 
@@ -23,7 +24,7 @@ export default async function InformesPage(props: { searchParams: Promise<{ tipo
     const tipo: Tipo = searchParams.tipo === 'partes' ? 'partes' : 'retrasos'
 
     const supabase = await createClient()
-    const today = new Date().toISOString().split('T')[0]
+    const today = hoyMadrid()
     const now = new Date()
 
     // 1. Configuración de trimestres
@@ -87,25 +88,30 @@ export default async function InformesPage(props: { searchParams: Promise<{ tipo
 async function RetrasosInforme({ filterStart, filterEnd, nombrePeriodo, today }: { filterStart: string; filterEnd: string; nombrePeriodo: string; today: string }) {
     const supabase = await createClient()
 
+    const rangoHoy = rangoDiaMadrid(today)
+    // convi_retrasos.fecha es timestamptz: el periodo va de las 00:00 de España del primer día
+    // a las 00:00 del día siguiente al último (así se incluye el último día completo)
+    const retrasosDesde = inicioDiaMadrid(filterStart)
+    const retrasosHasta = rangoDiaMadrid(filterEnd).fin
     const { count: totalHoy } = await supabase
         .from('convi_retrasos')
         .select('*', { count: 'exact', head: true })
-        .gte('fecha', `${today}T00:00:00.000Z`)
-        .lt('fecha', `${today}T23:59:59.999Z`)
+        .gte('fecha', rangoHoy.inicio)
+        .lt('fecha', rangoHoy.fin)
 
     const { count: totalTrimestre } = await supabase
         .from('convi_retrasos')
         .select('*', { count: 'exact', head: true })
-        .gte('fecha', filterStart)
-        .lte('fecha', filterEnd)
+        .gte('fecha', retrasosDesde)
+        .lt('fecha', retrasosHasta)
 
     const { data: pendientesData } = await supabase
         .from('convi_retrasos')
         .select('alumno_id')
         .eq('sancionable', true)
         .is('fecha_sancion', null)
-        .gte('fecha', filterStart)
-        .lte('fecha', filterEnd)
+        .gte('fecha', retrasosDesde)
+        .lt('fecha', retrasosHasta)
 
     const countAlumnosPendientes = new Set(pendientesData?.map(r => r.alumno_id)).size
 
@@ -113,8 +119,8 @@ async function RetrasosInforme({ filterStart, filterEnd, nombrePeriodo, today }:
         .from('convi_retrasos')
         .select('*', { count: 'exact', head: true })
         .eq('sancionable', true)
-        .gte('fecha', filterStart)
-        .lte('fecha', filterEnd)
+        .gte('fecha', retrasosDesde)
+        .lt('fecha', retrasosHasta)
 
     const { data: retrasosPorCursoRaw } = await supabase
         .from('convi_retrasos')
@@ -124,8 +130,8 @@ async function RetrasosInforme({ filterStart, filterEnd, nombrePeriodo, today }:
                 unidad
             )
         `)
-        .gte('fecha', filterStart)
-        .lte('fecha', filterEnd)
+        .gte('fecha', retrasosDesde)
+        .lt('fecha', retrasosHasta)
 
     const counts: Record<string, number> = {}
     retrasosPorCursoRaw?.forEach((r: any) => {
@@ -142,8 +148,8 @@ async function RetrasosInforme({ filterStart, filterEnd, nombrePeriodo, today }:
         .from('convi_retrasos')
         .select('*', { count: 'exact', head: true })
         .eq('justificante', true)
-        .gte('fecha', filterStart)
-        .lte('fecha', filterEnd)
+        .gte('fecha', retrasosDesde)
+        .lt('fecha', retrasosHasta)
 
     const totalPeriodo = retrasosPorCursoRaw?.length || 0
     const countNoJustificados = totalPeriodo - (countJustificados || 0)

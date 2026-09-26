@@ -3,6 +3,7 @@ import { createParte } from './actions'
 import { FileText, AlertTriangle, MessageSquare, Calendar, ShieldAlert, AlertOctagon } from 'lucide-react'
 import AlumnoSelector from '@/components/retrasos/AlumnoSelector'
 import SubmitButton from '@/components/SubmitButton'
+import { hoyMadrid } from '@/lib/fechas'
 
 const OPT_HORAS = ['1ª', '2ª', '3ª', 'Recreo', '4ª', '5ª', '6ª']
 
@@ -16,7 +17,7 @@ export default async function NuevoPartePage({
 
     // Intentamos obtener alumnos (id, alumno, curso) y profesores (id, profesor)
     // Si falla (por diferencias de esquema), mostraremos listas vacías
-    const today = new Date().toISOString().split('T')[0]
+    const today = hoyMadrid()
     const { data: alumnosData } = await supabase
         .from('alumnos')
         .select(`
@@ -114,7 +115,7 @@ export default async function NuevoPartePage({
                                 type="date"
                                 name="fecha"
                                 required
-                                defaultValue={new Date().toISOString().split('T')[0]}
+                                defaultValue={hoyMadrid()}
                                 className="w-full px-4 py-3 bg-gray-50 border-2 border-transparent rounded-2xl focus:outline-none focus:border-blue-500 focus:bg-white transition-all shadow-inner text-sm font-medium"
                             />
                         </div>

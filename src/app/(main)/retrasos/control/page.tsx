@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { History as HistoryIcon, Search, Calendar, ChevronLeft, ChevronRight, Loader2, User, AlertCircle, CheckCircle2, XCircle, Clock, Shield } from 'lucide-react'
 import { toast } from 'sonner'
+import { hoyMadrid, inicioDiaMadrid, rangoDiaMadrid } from '@/lib/fechas'
 
 interface Config {
     trimestre1_inicio: string;
@@ -51,7 +52,7 @@ export default function RetrasosControlPage() {
     const [alumnoDetails, setAlumnoDetails] = useState<DetalleRetraso[]>([])
     const [loadingDetails, setLoadingDetails] = useState(false)
     const [selectedRecords, setSelectedRecords] = useState<string[]>([])
-    const [bulkSancionDate, setBulkSancionDate] = useState(new Date().toISOString().split('T')[0])
+    const [bulkSancionDate, setBulkSancionDate] = useState(hoyMadrid())
     const [updatingBulk, setUpdatingBulk] = useState(false)
 
     const supabase = createClient()
@@ -69,7 +70,7 @@ export default function RetrasosControlPage() {
                 setConfig(data)
 
                 // Determinar trimestre actual
-                const today = new Date().toISOString().split('T')[0]
+                const today = hoyMadrid()
                 if (today >= data.trimestre1_inicio && today <= data.trimestre1_fin) {
                     setSelectedTrimestre(1)
                 } else if (today >= data.trimestre2_inicio && today <= data.trimestre2_fin) {
@@ -126,8 +127,8 @@ export default function RetrasosControlPage() {
                         unidad
                     )
                 `)
-                .gte('fecha', startDate)
-                .lte('fecha', endDate)
+                .gte('fecha', inicioDiaMadrid(startDate))
+                .lt('fecha', rangoDiaMadrid(endDate).fin)
 
             const { data, error } = await query
 
@@ -212,8 +213,8 @@ export default function RetrasosControlPage() {
                 .from('convi_retrasos')
                 .select('id, fecha, justificante, sancionable, observaciones, fecha_sancion, registrado_por')
                 .eq('alumno_id', alumnoId)
-                .gte('fecha', startDate)
-                .lte('fecha', endDate)
+                .gte('fecha', inicioDiaMadrid(startDate))
+                .lt('fecha', rangoDiaMadrid(endDate).fin)
                 .order('fecha', { ascending: false })
 
             if (error) throw error

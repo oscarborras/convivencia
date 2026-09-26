@@ -3,6 +3,7 @@ import { History as HistoryIcon, Clock, User, CheckCircle2, XCircle, AlertCircle
 import RecentRetrasosTable from '@/components/retrasos/RecentRetrasosTable'
 import AdvancedFilter from '@/components/dashboard/AdvancedFilter'
 import Pagination from '@/components/dashboard/Pagination'
+import { rangoDiaMadrid } from '@/lib/fechas'
 
 const normalizeText = (text: string) =>
     text.toLowerCase()
@@ -50,7 +51,8 @@ export default async function RetrasosHistorialPage(props: { searchParams: Promi
 
     // Filtro por Fecha
     if (fecha) {
-        query = query.gte('fecha', `${fecha}T00:00:00`).lte('fecha', `${fecha}T23:59:59`)
+        const rango = rangoDiaMadrid(fecha)
+        query = query.gte('fecha', rango.inicio).lt('fecha', rango.fin)
     }
 
     // Orden y Paginación

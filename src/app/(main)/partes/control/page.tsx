@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { History as HistoryIcon, Search, Calendar, ChevronLeft, ChevronRight, Loader2, User, AlertCircle, CheckCircle2, XCircle, Clock, Shield, FileText, AlertTriangle, Smartphone } from 'lucide-react'
 import { toast } from 'sonner'
+import { hoyMadrid } from '@/lib/fechas'
 
 interface Config {
     trimestre1_inicio: string;
@@ -60,7 +61,7 @@ export default function PartesControlPage() {
     const [alumnoDetails, setAlumnoDetails] = useState<DetalleParte[]>([])
     const [loadingDetails, setLoadingDetails] = useState(false)
     const [selectedRecords, setSelectedRecords] = useState<string[]>([])
-    const [bulkSancionDate, setBulkSancionDate] = useState(new Date().toISOString().split('T')[0])
+    const [bulkSancionDate, setBulkSancionDate] = useState(hoyMadrid())
     const [bulkSancionInicio, setBulkSancionInicio] = useState('')
     const [bulkSancionFin, setBulkSancionFin] = useState('')
     const [bulkSancionObs, setBulkSancionObs] = useState('')
@@ -79,7 +80,7 @@ export default function PartesControlPage() {
 
             if (data) {
                 setConfig(data)
-                const today = new Date().toISOString().split('T')[0]
+                const today = hoyMadrid()
                 if (today >= data.trimestre1_inicio && today <= data.trimestre1_fin) {
                     setSelectedTrimestre(1)
                 } else if (today >= data.trimestre2_inicio && today <= data.trimestre2_fin) {
