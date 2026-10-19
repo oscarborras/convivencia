@@ -4,7 +4,7 @@ import UnitsBarChart from '@/components/charts/UnitsBarChart'
 import PartesGravityChart from '@/components/dashboard/PartesGravityChart'
 import PartesFilter from '@/components/dashboard/PartesFilter'
 import { hoyMadrid } from '@/lib/fechas'
-import { labelTipoSancion } from '@/lib/sanciones'
+import { labelTipoSancion, claseTipoSancion } from '@/lib/sanciones'
 
 const DAY_MS = 24 * 60 * 60 * 1000
 
@@ -227,9 +227,9 @@ export default async function SancionesDashboardPage(props: { searchParams: Prom
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,11fr)_minmax(0,9fr)] gap-8">
                 {/* Sanciones en curso y próximas */}
-                <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
                     <div className="flex items-center gap-3 mb-8">
                         <div className="bg-rose-50 p-2.5 rounded-2xl text-rose-600">
                             <CalendarDays className="w-6 h-6" />
@@ -244,11 +244,11 @@ export default async function SancionesDashboardPage(props: { searchParams: Prom
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="bg-gray-50/50">
-                                    <th className="px-4 py-4 text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">Alumno/a</th>
-                                    <th className="px-4 py-4 text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center">Inicio</th>
-                                    <th className="px-4 py-4 text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center">Fin</th>
-                                    <th className="px-4 py-4 text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center">Tipo</th>
-                                    <th className="px-4 py-4 text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center">Estado</th>
+                                    <th className="px-3 py-3 text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">Alumno/a</th>
+                                    <th className="px-3 py-3 text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center">Inicio</th>
+                                    <th className="px-3 py-3 text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center">Fin</th>
+                                    <th className="px-3 py-3 text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center">Tipo</th>
+                                    <th className="px-3 py-3 text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center">Estado</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
@@ -256,14 +256,22 @@ export default async function SancionesDashboardPage(props: { searchParams: Prom
                                     const enCurso = s.fecha_inicio && s.fecha_inicio <= today
                                     return (
                                         <tr key={s.id} className="group hover:bg-rose-50/30 transition-all">
-                                            <td className="px-4 py-3">
+                                            <td className="px-3 py-3">
                                                 <p className="font-bold text-gray-900 text-sm leading-tight">{s.alumno}</p>
                                                 <span className="text-[11px] font-bold text-blue-700">{s.unidad}</span>
                                             </td>
-                                            <td className="px-4 py-3 text-center text-sm font-medium text-gray-600">{formatFecha(s.fecha_inicio)}</td>
-                                            <td className="px-4 py-3 text-center text-sm font-medium text-gray-600">{formatFecha(s.fecha_fin)}</td>
-                                            <td className="px-4 py-3 text-center text-sm font-medium text-gray-600 whitespace-nowrap">{labelTipoSancion(s.tipo) ?? '—'}</td>
-                                            <td className="px-4 py-3 text-center">
+                                            <td className="px-3 py-3 text-center text-sm font-medium text-gray-600">{formatFecha(s.fecha_inicio)}</td>
+                                            <td className="px-3 py-3 text-center text-sm font-medium text-gray-600">{formatFecha(s.fecha_fin)}</td>
+                                            <td className="px-2 py-3 text-center">
+                                                {s.tipo ? (
+                                                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border whitespace-nowrap ${claseTipoSancion(s.tipo)}`}>
+                                                        {labelTipoSancion(s.tipo)}
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-sm text-gray-400">—</span>
+                                                )}
+                                            </td>
+                                            <td className="px-3 py-3 text-center">
                                                 <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${enCurso
                                                     ? 'bg-rose-50 text-rose-700 border-rose-100'
                                                     : 'bg-amber-50 text-amber-700 border-amber-100'
