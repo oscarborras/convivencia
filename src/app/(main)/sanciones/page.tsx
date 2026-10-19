@@ -4,7 +4,7 @@ import UnitsBarChart from '@/components/charts/UnitsBarChart'
 import PartesGravityChart from '@/components/dashboard/PartesGravityChart'
 import PartesFilter from '@/components/dashboard/PartesFilter'
 import { hoyMadrid } from '@/lib/fechas'
-import { labelTipoSancion, claseTipoSancion } from '@/lib/sanciones'
+import { TIPOS_SANCION, labelTipoSancion, claseTipoSancion } from '@/lib/sanciones'
 
 const DAY_MS = 24 * 60 * 60 * 1000
 
@@ -50,7 +50,7 @@ export default async function SancionesDashboardPage(props: { searchParams: Prom
     // 1. Sanciones impuestas en el periodo
     const { data: sancionesPeriodo } = await supabase
         .from('v_sanciones_detalladas')
-        .select('id, alumno_id, alumno, unidad, fecha_sancion, fecha_inicio, fecha_fin, num_partes')
+        .select('id, alumno_id, alumno, unidad, fecha_sancion, fecha_inicio, fecha_fin, num_partes, tipo')
         .gte('fecha_sancion', filterStart)
         .lte('fecha_sancion', filterEnd)
 
@@ -76,7 +76,7 @@ export default async function SancionesDashboardPage(props: { searchParams: Prom
     // Procesar datos para gráficos y estadísticas
     const unidadCounts: Record<string, number> = {}
     const alumnoCounts: Record<string, { name: string, unidad: string, sanciones: number, partes: number, dias: number }> = {}
-    const estado = { finalizadas: 0, enCurso: 0, proximas: 0, sinFechas: 0 }
+    const tipoCounts: Record<string, number> = {}
     let totalDias = 0
     let sancionesConDias = 0
 
@@ -97,10 +97,8 @@ export default async function SancionesDashboardPage(props: { searchParams: Prom
         alumnoCounts[s.alumno_id].partes += s.num_partes || 0
         alumnoCounts[s.alumno_id].dias += dias || 0
 
-        if (!s.fecha_inicio || !s.fecha_fin) estado.sinFechas++
-        else if (s.fecha_fin < today) estado.finalizadas++
-        else if (s.fecha_inicio > today) estado.proximas++
-        else estado.enCurso++
+        const tipo = s.tipo || 'sin_tipo'
+        tipoCounts[tipo] = (tipoCounts[tipo] || 0) + 1
     })
 
     const chartData = Object.entries(unidadCounts)
@@ -112,11 +110,10 @@ export default async function SancionesDashboardPage(props: { searchParams: Prom
         .sort((a, b) => b.sanciones - a.sanciones || b.dias - a.dias)
         .slice(0, 10)
 
-    const estadoChartData = [
-        { name: 'Finalizadas', value: estado.finalizadas, color: '#10b981' },
-        { name: 'En curso', value: estado.enCurso, color: '#e11d48' },
-        { name: 'Próximas', value: estado.proximas, color: '#f59e0b' },
-        ...(estado.sinFechas > 0 ? [{ name: 'Sin fechas', value: estado.sinFechas, color: '#94a3b8' }] : []),
+    // Sanciones del periodo por tipo (las anteriores a existir el tipo cuentan como "Sin tipo")
+    const tipoChartData = [
+        ...TIPOS_SANCION.map(t => ({ name: t.label, value: tipoCounts[t.value] || 0, color: t.color })),
+        ...(tipoCounts.sin_tipo ? [{ name: 'Sin tipo', value: tipoCounts.sin_tipo, color: '#94a3b8' }] : []),
     ]
 
     const mediaDias = sancionesConDias > 0 ? (totalDias / sancionesConDias).toFixed(1) : '—'
@@ -210,11 +207,11 @@ export default async function SancionesDashboardPage(props: { searchParams: Prom
                     </div>
                 </div>
 
-                {/* Distribución por Estado */}
+                {/* Distribución por Tipo */}
                 <div className="lg:col-span-4 bg-white p-8 rounded-3xl shadow-sm border border-gray-100 flex flex-col h-full">
                     <div className="flex items-center justify-between mb-8">
                         <div>
-                            <h2 className="text-xl font-bold text-gray-900 tracking-tight">Estado</h2>
+                            <h2 className="text-xl font-bold text-gray-900 tracking-tight">Tipo de sanción</h2>
                             <p className="text-sm text-gray-500 font-medium">Media: {mediaDias} días por sanción</p>
                         </div>
                         <div className="bg-emerald-50 p-2.5 rounded-2xl text-emerald-600">
@@ -222,7 +219,7 @@ export default async function SancionesDashboardPage(props: { searchParams: Prom
                         </div>
                     </div>
                     <div className="flex-1 min-h-[400px]">
-                        <PartesGravityChart data={estadoChartData} />
+                        <PartesGravityChart data={tipoChartData} />
                     </div>
                 </div>
             </div>
