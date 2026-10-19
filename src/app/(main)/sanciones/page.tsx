@@ -295,7 +295,7 @@ export default async function SancionesDashboardPage(props: { searchParams: Prom
                 </div>
 
                 {/* Alumnos con más sanciones */}
-                <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
                     <div className="flex items-center gap-3 mb-8">
                         <div className="bg-blue-50 p-2.5 rounded-2xl text-blue-600">
                             <User className="w-6 h-6" />
@@ -310,27 +310,27 @@ export default async function SancionesDashboardPage(props: { searchParams: Prom
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="bg-gray-50/50">
-                                    <th className="px-4 py-4 text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">Alumno/a</th>
-                                    <th className="px-4 py-4 text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center">Partes</th>
-                                    <th className="px-4 py-4 text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center">Días</th>
-                                    <th className="px-4 py-4 text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center">Sanciones</th>
+                                    <th className="px-3 py-3 text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">Alumno/a</th>
+                                    <th className="px-3 py-3 text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center">Partes</th>
+                                    <th className="px-3 py-3 text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center">Días</th>
+                                    <th className="px-3 py-3 text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center">Sanciones</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
                                 {alumnoStats.map((a, idx) => (
                                     <tr key={idx} className="group hover:bg-rose-50/30 transition-all cursor-default">
-                                        <td className="px-4 py-3">
+                                        <td className="px-3 py-3">
                                             <p className="font-bold text-gray-900 text-sm leading-tight group-hover:text-rose-700 transition-colors">{a.name}</p>
                                             <span className="text-[11px] font-bold text-blue-700">{a.unidad}</span>
                                         </td>
-                                        <td className="px-4 py-3 text-center">
+                                        <td className="px-3 py-3 text-center">
                                             <div className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 px-3 py-1 rounded-full text-sm font-bold border border-amber-100/50">
                                                 <FileText className="w-3.5 h-3.5 text-amber-500" />
                                                 {a.partes}
                                             </div>
                                         </td>
-                                        <td className="px-4 py-3 text-center text-sm font-bold text-gray-600">{a.dias}</td>
-                                        <td className="px-4 py-3 text-center">
+                                        <td className="px-3 py-3 text-center text-sm font-bold text-gray-600">{a.dias}</td>
+                                        <td className="px-3 py-3 text-center">
                                             <span className="text-sm font-black text-rose-600 bg-rose-50 w-8 h-8 inline-flex items-center justify-center rounded-xl shadow-sm border border-rose-100 group-hover:bg-rose-600 group-hover:text-white transition-all">
                                                 {a.sanciones}
                                             </span>
