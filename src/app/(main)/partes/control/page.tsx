@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { History as HistoryIcon, Search, Calendar, ChevronLeft, ChevronRight, Loader2, User, AlertCircle, CheckCircle2, XCircle, Clock, Shield, FileText, AlertTriangle, Smartphone } from 'lucide-react'
 import { toast } from 'sonner'
 import { hoyMadrid } from '@/lib/fechas'
+import { TIPOS_SANCION, labelTipoSancion, type TipoSancion } from '@/lib/sanciones'
 
 interface Config {
     trimestre1_inicio: string;
@@ -39,6 +40,7 @@ interface DetalleParte {
         fecha_inicio: string | null;
         fecha_fin: string | null;
         observaciones: string | null;
+        tipo: string | null;
     } | null;
     profesores: any;
     registrado_por: string | null;
@@ -65,7 +67,9 @@ export default function PartesControlPage() {
     const [bulkSancionInicio, setBulkSancionInicio] = useState('')
     const [bulkSancionFin, setBulkSancionFin] = useState('')
     const [bulkSancionObs, setBulkSancionObs] = useState('')
+    const [bulkSancionTipo, setBulkSancionTipo] = useState<TipoSancion | ''>('')
     const [updatingBulk, setUpdatingBulk] = useState(false)
+    const [mostrarSancionados, setMostrarSancionados] = useState(false)
 
     const supabase = createClient()
 
@@ -224,7 +228,7 @@ export default function PartesControlPage() {
 
             const { data, error } = await supabase
                 .from('convi_partes')
-                .select('id, fecha, hora, conductas_contrarias, conductas_graves, genera_expulsion, observaciones, fecha_sancion, registrado_por, profesores(profesor), convi_sanciones(fecha_inicio, fecha_fin, observaciones)')
+                .select('id, fecha, hora, conductas_contrarias, conductas_graves, genera_expulsion, observaciones, fecha_sancion, registrado_por, profesores(profesor), convi_sanciones(fecha_inicio, fecha_fin, observaciones, tipo)')
                 .eq('alumno_id', alumnoId)
                 .gte('fecha', startDate)
                 .lte('fecha', endDate)
@@ -246,6 +250,10 @@ export default function PartesControlPage() {
             toast.error('Indica la fecha de la sanción, de inicio y de fin')
             return
         }
+        if (!bulkSancionTipo) {
+            toast.error('Indica el tipo de sanción')
+            return
+        }
         if (bulkSancionFin < bulkSancionInicio) {
             toast.error('La fecha de fin no puede ser anterior a la de inicio')
             return
@@ -259,6 +267,7 @@ export default function PartesControlPage() {
                 p_fecha_inicio: bulkSancionInicio,
                 p_fecha_fin: bulkSancionFin,
                 p_observaciones: bulkSancionObs,
+                p_tipo: bulkSancionTipo,
             })
 
             if (error) throw error
@@ -268,6 +277,7 @@ export default function PartesControlPage() {
             setBulkSancionInicio('')
             setBulkSancionFin('')
             setBulkSancionObs('')
+            setBulkSancionTipo('')
             if (selectedAlumnoId) {
                 fetchAlumnoDetails(selectedAlumnoId, selectedAlumnoName)
             }
@@ -286,11 +296,25 @@ export default function PartesControlPage() {
         )
     }
 
+    // Por defecto solo se muestran los partes pendientes de sanción
+    const partesVisibles = mostrarSancionados
+        ? alumnoDetails
+        : alumnoDetails.filter(d => d.fecha_sancion === null)
+
     const selectAllRecords = () => {
-        if (selectedRecords.length === alumnoDetails.length) {
+        if (selectedRecords.length === partesVisibles.length) {
             setSelectedRecords([])
         } else {
-            setSelectedRecords(alumnoDetails.map(d => d.id))
+            setSelectedRecords(partesVisibles.map(d => d.id))
+        }
+    }
+
+    const toggleMostrarSancionados = (checked: boolean) => {
+        setMostrarSancionados(checked)
+        // Al ocultar los sancionados, deseleccionar los que dejan de verse
+        if (!checked) {
+            const sancionados = new Set(alumnoDetails.filter(d => d.fecha_sancion !== null).map(d => d.id))
+            setSelectedRecords(prev => prev.filter(id => !sancionados.has(id)))
         }
     }
 
@@ -437,7 +461,10 @@ export default function PartesControlPage() {
                                     <tr
                                         key={alu.id}
                                         className="hover:bg-rose-50/30 transition-all group cursor-pointer"
-                                        onClick={() => fetchAlumnoDetails(alu.id, alu.alumno)}
+                                        onClick={() => {
+                                            setMostrarSancionados(false)
+                                            fetchAlumnoDetails(alu.id, alu.alumno)
+                                        }}
                                     >
                                         <td className="px-4 py-1.5">
                                             <div className="flex items-center gap-3">
@@ -549,18 +576,30 @@ export default function PartesControlPage() {
                             ) : alumnoDetails.length > 0 ? (
                                 <div className="space-y-4">
                                     <div className="bg-rose-50/50 rounded-2xl p-4 mb-6 sticky top-0 z-10 backdrop-blur-md border border-rose-100/50">
-                                        <div className="flex items-center gap-3">
-                                            <input
-                                                type="checkbox"
-                                                checked={selectedRecords.length === alumnoDetails.length && alumnoDetails.length > 0}
-                                                onChange={selectAllRecords}
-                                                className="w-5 h-5 rounded-lg border-rose-200 text-rose-600 focus:ring-rose-500 transition-all cursor-pointer"
-                                            />
-                                            <span className="text-sm font-bold text-rose-900">
-                                                {selectedRecords.length === 0
-                                                    ? 'Ningún seleccionado'
-                                                    : `${selectedRecords.length} seleccionados`}
-                                            </span>
+                                        <div className="flex flex-wrap items-center justify-between gap-3">
+                                            <div className="flex items-center gap-3">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedRecords.length === partesVisibles.length && partesVisibles.length > 0}
+                                                    onChange={selectAllRecords}
+                                                    disabled={partesVisibles.length === 0}
+                                                    className="w-5 h-5 rounded-lg border-rose-200 text-rose-600 focus:ring-rose-500 transition-all cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                                                />
+                                                <span className="text-sm font-bold text-rose-900">
+                                                    {selectedRecords.length === 0
+                                                        ? 'Ningún seleccionado'
+                                                        : `${selectedRecords.length} seleccionados`}
+                                                </span>
+                                            </div>
+                                            <label className="flex items-center gap-2 text-xs font-bold text-gray-500 cursor-pointer select-none">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={mostrarSancionados}
+                                                    onChange={(e) => toggleMostrarSancionados(e.target.checked)}
+                                                    className="w-4 h-4 rounded border-gray-300 text-rose-600 focus:ring-rose-500 cursor-pointer"
+                                                />
+                                                Ver todos (incluidos sancionados)
+                                            </label>
                                         </div>
 
                                         {selectedRecords.length > 0 && (
@@ -583,6 +622,21 @@ export default function PartesControlPage() {
                                                             />
                                                         </div>
                                                     ))}
+                                                </div>
+                                                <div>
+                                                    <label className="block text-[10px] font-black text-rose-400 uppercase tracking-widest mb-1 px-1">
+                                                        Tipo de sanción
+                                                    </label>
+                                                    <select
+                                                        value={bulkSancionTipo}
+                                                        onChange={(e) => setBulkSancionTipo(e.target.value as TipoSancion | '')}
+                                                        className="w-full px-3 py-1.5 rounded-xl border border-rose-200 text-sm font-bold text-rose-700 bg-white focus:outline-none focus:ring-2 focus:ring-rose-500/20 shadow-sm"
+                                                    >
+                                                        <option value="">Selecciona un tipo…</option>
+                                                        {TIPOS_SANCION.map(t => (
+                                                            <option key={t.value} value={t.value}>{t.label}</option>
+                                                        ))}
+                                                    </select>
                                                 </div>
                                                 <div>
                                                     <label className="block text-[10px] font-black text-rose-400 uppercase tracking-widest mb-1 px-1">
@@ -609,7 +663,13 @@ export default function PartesControlPage() {
                                         )}
                                     </div>
 
-                                    {alumnoDetails.map((detalle) => (
+                                    {partesVisibles.length === 0 && (
+                                        <div className="py-8 text-center text-sm text-gray-400">
+                                            Todos los partes de este alumno ya están sancionados.
+                                        </div>
+                                    )}
+
+                                    {partesVisibles.map((detalle) => (
                                         <div
                                             key={detalle.id}
                                             className={`bg-indigo-50/50 border rounded-3xl p-5 transition-all group relative flex gap-4 ${selectedRecords.includes(detalle.id)
@@ -703,13 +763,16 @@ export default function PartesControlPage() {
                                                     </div>
                                                 )}
 
-                                                {detalle.fecha_sancion && detalle.convi_sanciones && (detalle.convi_sanciones.fecha_inicio || detalle.convi_sanciones.observaciones) && (
+                                                {detalle.fecha_sancion && detalle.convi_sanciones && (detalle.convi_sanciones.fecha_inicio || detalle.convi_sanciones.observaciones || detalle.convi_sanciones.tipo) && (
                                                     <div className="mt-2 mb-3 bg-blue-50/60 p-3 rounded-2xl text-xs text-blue-900 border border-blue-100 space-y-1">
                                                         {detalle.convi_sanciones.fecha_inicio && (
                                                             <div className="font-bold">
                                                                 Sanción: del {new Date(detalle.convi_sanciones.fecha_inicio).toLocaleDateString('es-ES')}
                                                                 {detalle.convi_sanciones.fecha_fin && ` al ${new Date(detalle.convi_sanciones.fecha_fin).toLocaleDateString('es-ES')}`}
                                                             </div>
+                                                        )}
+                                                        {detalle.convi_sanciones.tipo && (
+                                                            <div>Tipo: <span className="font-bold">{labelTipoSancion(detalle.convi_sanciones.tipo)}</span></div>
                                                         )}
                                                         {detalle.convi_sanciones.observaciones && (
                                                             <div className="italic">{detalle.convi_sanciones.observaciones}</div>

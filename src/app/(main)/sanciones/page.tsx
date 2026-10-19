@@ -4,6 +4,7 @@ import UnitsBarChart from '@/components/charts/UnitsBarChart'
 import PartesGravityChart from '@/components/dashboard/PartesGravityChart'
 import PartesFilter from '@/components/dashboard/PartesFilter'
 import { hoyMadrid } from '@/lib/fechas'
+import { labelTipoSancion } from '@/lib/sanciones'
 
 const DAY_MS = 24 * 60 * 60 * 1000
 
@@ -56,7 +57,7 @@ export default async function SancionesDashboardPage(props: { searchParams: Prom
     // 2. Sanciones en curso o próximas (independiente del periodo)
     const { data: sancionesActivas } = await supabase
         .from('v_sanciones_detalladas')
-        .select('id, alumno, unidad, fecha_sancion, fecha_inicio, fecha_fin, num_partes')
+        .select('id, alumno, unidad, fecha_sancion, fecha_inicio, fecha_fin, num_partes, tipo')
         .gte('fecha_fin', today)
         .order('fecha_inicio', { ascending: true })
 
@@ -246,6 +247,7 @@ export default async function SancionesDashboardPage(props: { searchParams: Prom
                                     <th className="px-4 py-4 text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">Alumno/a</th>
                                     <th className="px-4 py-4 text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center">Inicio</th>
                                     <th className="px-4 py-4 text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center">Fin</th>
+                                    <th className="px-4 py-4 text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center">Tipo</th>
                                     <th className="px-4 py-4 text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center">Estado</th>
                                 </tr>
                             </thead>
@@ -260,6 +262,7 @@ export default async function SancionesDashboardPage(props: { searchParams: Prom
                                             </td>
                                             <td className="px-4 py-3 text-center text-sm font-medium text-gray-600">{formatFecha(s.fecha_inicio)}</td>
                                             <td className="px-4 py-3 text-center text-sm font-medium text-gray-600">{formatFecha(s.fecha_fin)}</td>
+                                            <td className="px-4 py-3 text-center text-sm font-medium text-gray-600 whitespace-nowrap">{labelTipoSancion(s.tipo) ?? '—'}</td>
                                             <td className="px-4 py-3 text-center">
                                                 <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${enCurso
                                                     ? 'bg-rose-50 text-rose-700 border-rose-100'
@@ -273,7 +276,7 @@ export default async function SancionesDashboardPage(props: { searchParams: Prom
                                 })}
                                 {activas.length === 0 && (
                                     <tr>
-                                        <td colSpan={4} className="py-12 text-center text-gray-400 font-medium">
+                                        <td colSpan={5} className="py-12 text-center text-gray-400 font-medium">
                                             No hay sanciones en curso ni próximas
                                         </td>
                                     </tr>

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { AlertCircle, AlertTriangle, X, Info, User, Calendar, CalendarClock, CalendarCheck, Shield, Gavel, FileText, Clock } from 'lucide-react'
 import { hoyMadrid } from '@/lib/fechas'
+import { labelTipoSancion } from '@/lib/sanciones'
 
 interface ParteSancion {
     id: string
@@ -22,6 +23,7 @@ interface Sancion {
     fecha_sancion: string
     fecha_inicio: string | null
     fecha_fin: string | null
+    tipo: string | null
     observaciones: string | null
     registrado_por: string | null
     num_partes: number
@@ -75,6 +77,7 @@ export default function SancionesTable({ data }: SancionesTableProps) {
                         <th className="py-2.5 px-4 font-bold text-slate-500 text-[11px] hidden sm:table-cell uppercase tracking-wider">Curso</th>
                         <th className="py-2.5 px-4 font-bold text-slate-500 text-[11px] text-center uppercase tracking-wider">Fecha</th>
                         <th className="py-2.5 px-4 font-bold text-slate-500 text-[11px] text-center uppercase tracking-wider">Periodo</th>
+                        <th className="py-2.5 px-4 font-bold text-slate-500 text-[11px] text-center uppercase tracking-wider">Tipo</th>
                         <th className="py-2.5 px-4 font-bold text-slate-500 text-[11px] text-center uppercase tracking-wider hidden md:table-cell">Partes</th>
                         <th className="py-2.5 px-4 font-bold text-slate-500 text-[11px] text-center uppercase tracking-wider">Estado</th>
                     </tr>
@@ -108,6 +111,9 @@ export default function SancionesTable({ data }: SancionesTableProps) {
                                 </td>
                                 <td className="py-2 px-4 text-center text-[12px] font-medium text-gray-600 whitespace-nowrap">
                                     {sancion.fecha_inicio ? `${formatCorta(sancion.fecha_inicio)} – ${formatCorta(sancion.fecha_fin)}` : '—'}
+                                </td>
+                                <td className="py-2 px-4 text-center text-[12px] font-medium text-gray-600 whitespace-nowrap">
+                                    {labelTipoSancion(sancion.tipo) ?? '—'}
                                 </td>
                                 <td className="py-2 px-4 text-center hidden md:table-cell">
                                     <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 px-2.5 py-0.5 rounded-full text-[11px] font-bold border border-amber-100/50">
@@ -175,6 +181,13 @@ export default function SancionesTable({ data }: SancionesTableProps) {
                                         <span className="text-[10px] font-black uppercase tracking-widest">Fecha de la Sanción</span>
                                     </div>
                                     <p className="font-bold text-gray-900 text-sm">{formatLarga(selectedRecord.fecha_sancion)}</p>
+                                </div>
+                                <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm space-y-1 sm:col-span-2">
+                                    <div className="flex items-center gap-2 text-gray-400 mb-1">
+                                        <Gavel className="w-3.5 h-3.5" />
+                                        <span className="text-[10px] font-black uppercase tracking-widest">Tipo de Sanción</span>
+                                    </div>
+                                    <p className="font-bold text-gray-900 text-sm">{labelTipoSancion(selectedRecord.tipo) ?? 'No indicado'}</p>
                                 </div>
                                 <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm space-y-1">
                                     <div className="flex items-center gap-2 text-gray-400 mb-1">
